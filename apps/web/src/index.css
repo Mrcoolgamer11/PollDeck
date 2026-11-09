@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html {
+  -webkit-text-size-adjust: 100%;
+  -webkit-tap-highlight-color: transparent;
+}
+body {
+  @apply antialiased;
+}
+:focus-visible {
+  outline-offset: 2px;
+}
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+/* Folienbereich: skaliert mit der Containergröße */
+.pd-slide {
+  container-type: size;
+}
+.pd-title {
+  font-size: clamp(1.25rem, 4.2cqw, 4rem);
+  line-height: 1.15;
+}
+.pd-text {
+  font-size: clamp(0.85rem, 1.8cqw, 1.75rem);
+}
+.pd-small {
+  font-size: clamp(0.7rem, 1.25cqw, 1.2rem);
+}

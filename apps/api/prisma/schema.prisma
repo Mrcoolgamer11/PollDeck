@@ -1,0 +1,257 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  PRESENTER
+  ADMIN
+}
+
+enum ShareRole {
+  VIEW
+  EDIT
+}
+
+enum SessionStatus {
+  ACTIVE
+  ENDED
+}
+
+enum SessionMode {
+  PRESENTER
+  SURVEY
+}
+
+enum ModerationStatus {
+  APPROVED
+  PENDING
+  REJECTED
+}
+
+model User {
+  id           String    @id @default(cuid())
+  email        String    @unique
+  name         String
+  passwordHash String?
+  role         Role      @default(PRESENTER)
+  disabled     Boolean   @default(false)
+  locale       String?
+  oidcSub      String?   @unique
+  lastLoginAt  DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  authSessions  AuthSession[]
+  resetTokens   PasswordResetToken[]
+  presentations Presentation[]
+  folders       Folder[]
+  shares        PresentationShare[]
+  themes        Theme[]
+  invites       Invite[]
+}
+
+/// Login-Sitzung (Cookie). Die ID ist der SHA-256-Hash des Cookie-Tokens.
+model AuthSession {
+  id        String   @id
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  userAgent String?
+  ip        String?
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model PasswordResetToken {
+  id        String    @id @default(cuid())
+  tokenHash String    @unique
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Invite {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  email       String?
+  role        Role      @default(PRESENTER)
+  createdById String
+  createdBy   User      @relation(fields: [createdById], references: [id], onDelete: Cascade)
+  expiresAt   DateTime
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+}
+
+/// Instanz-Einstellungen (Schlüssel/Wert)
+model Setting {
+  key       String   @id
+  value     Json
+  updatedAt DateTime @updatedAt
+}
+
+model Folder {
+  id            String         @id @default(cuid())
+  name          String
+  ownerId       String
+  owner         User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  createdAt     DateTime       @default(now())
+  presentations Presentation[]
+
+  @@index([ownerId])
+}
+
+model Theme {
+  id            String         @id @default(cuid())
+  name          String
+  ownerId       String
+  owner         User           @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  config        Json
+  createdAt     DateTime       @default(now())
+  presentations Presentation[]
+}
+
+model Presentation {
+  id        String   @id @default(cuid())
+  title     String
+  ownerId   String
+  owner     User     @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  folderId  String?
+  folder    Folder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  /// Eigenes Theme (Theme-Tabelle); null = builtinTheme verwenden
+  themeId   String?
+  theme     Theme?   @relation(fields: [themeId], references: [id], onDelete: SetNull)
+  builtinTheme String @default("builtin-dark")
+  settings  Json     @default("{}")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  slides   Slide[]
+  sessions LiveSession[]
+  shares   PresentationShare[]
+
+  @@index([ownerId])
+}
+
+model PresentationShare {
+  id             String       @id @default(cuid())
+  presentationId String
+  presentation   Presentation @relation(fields: [presentationId], references: [id], onDelete: Cascade)
+  userId         String
+  user           User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role           ShareRole    @default(VIEW)
+  createdAt      DateTime     @default(now())
+
+  @@unique([presentationId, userId])
+}
+
+model Slide {
+  id             String       @id @default(cuid())
+  presentationId String
+  presentation   Presentation @relation(fields: [presentationId], references: [id], onDelete: Cascade)
+  position       Int
+  type           String
+  title          String       @default("")
+  description    String?
+  imageUrl       String?
+  background     Json         @default("{}")
+  config         Json         @default("{}")
+  settings       Json         @default("{}")
+  notes          String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([presentationId, position])
+}
+
+/// Eine Durchführung einer Präsentation. Die Folien werden beim Start als
+/// Snapshot gespeichert, damit archivierte Ergebnisse stabil bleiben.
+model LiveSession {
+  id             String        @id @default(cuid())
+  presentationId String
+  presentation   Presentation  @relation(fields: [presentationId], references: [id], onDelete: Cascade)
+  code           String
+  status         SessionStatus @default(ACTIVE)
+  mode           SessionMode   @default(PRESENTER)
+  slides         Json
+  state          Json
+  startedAt      DateTime      @default(now())
+  endedAt        DateTime?
+
+  participants Participant[]
+  responses    Response[]
+  questions    Question[]
+
+  @@index([code, status])
+  @@index([presentationId])
+}
+
+model Participant {
+  id         String      @id @default(cuid())
+  sessionId  String
+  session    LiveSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  deviceId   String
+  name       String?
+  kicked     Boolean     @default(false)
+  createdAt  DateTime    @default(now())
+  lastSeenAt DateTime    @default(now())
+
+  responses Response[]
+  questions Question[]
+  upvotes   QuestionUpvote[]
+
+  @@unique([sessionId, deviceId])
+}
+
+model Response {
+  id            String           @id @default(cuid())
+  sessionId     String
+  session       LiveSession      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  slideId       String
+  participantId String
+  participant   Participant      @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  value         Json
+  status        ModerationStatus @default(APPROVED)
+  isCorrect     Boolean?
+  points        Int              @default(0)
+  timeMs        Int?
+  createdAt     DateTime         @default(now())
+
+  @@index([sessionId, slideId])
+  @@index([participantId])
+}
+
+model Question {
+  id            String           @id @default(cuid())
+  sessionId     String
+  session       LiveSession      @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  slideId       String
+  participantId String
+  participant   Participant      @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  text          String
+  status        ModerationStatus @default(APPROVED)
+  answered      Boolean          @default(false)
+  createdAt     DateTime         @default(now())
+
+  upvotes QuestionUpvote[]
+
+  @@index([sessionId, slideId])
+}
+
+model QuestionUpvote {
+  questionId    String
+  question      Question    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  participantId String
+  participant   Participant @relation(fields: [participantId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+
+  @@id([questionId, participantId])
+}
