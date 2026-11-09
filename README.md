@@ -120,22 +120,20 @@ Gesichert werden müssen die **Datenbank** und die **Uploads** (`./data/uploads`
 
 ### Backup
 
+Das Skript [`scripts/backup.sh`](scripts/backup.sh) sichert Datenbank und Uploads nach `./backups/` (nur für den Besitzer lesbar) und löscht Sicherungen, die älter als 30 Tage sind – so steht es auch in der Datenschutzerklärung-Vorlage (`docs/rechtstexte/`).
+
 ```bash
 cd ~/docker/polldeck
-mkdir -p backups
-# Datenbank-Dump (konsistent, im laufenden Betrieb)
-docker compose exec -T postgres pg_dump -U polldeck -d polldeck -Fc > backups/polldeck-$(date +%F).dump
-# Uploads
-tar -czf backups/uploads-$(date +%F).tar.gz -C data uploads
+./scripts/backup.sh          # einmal manuell testen
 ```
 
-Beispiel für ein tägliches Backup per Cron (`crontab -e`):
+Tägliche Sicherung um 3:30 Uhr per Cron (`crontab -e`, Pfad anpassen):
 
 ```cron
-30 3 * * * cd ~/docker/polldeck && docker compose exec -T postgres pg_dump -U polldeck -d polldeck -Fc > backups/polldeck-$(date +\%F).dump && tar -czf backups/uploads-$(date +\%F).tar.gz -C data uploads && find backups -type f -mtime +30 -delete
+30 3 * * * /root/docker/polldeck/scripts/backup.sh >> /root/docker/polldeck/backups/backup.log 2>&1
 ```
 
-Der letzte Teil löscht Sicherungen, die älter als 30 Tage sind – so steht es auch in der Datenschutzerklärung-Vorlage (`docs/rechtstexte/`).
+Optional: `KEEP_DAYS=14 ./scripts/backup.sh` ändert die Aufbewahrung (dann auch die Datenschutzerklärung anpassen). Für mehr Sicherheit die Dateien zusätzlich verschlüsselt auf einen zweiten Speicher kopieren.
 
 ### Restore
 
@@ -143,9 +141,9 @@ Der letzte Teil löscht Sicherungen, die älter als 30 Tage sind – so steht es
 cd ~/docker/polldeck
 docker compose stop api web
 # Datenbank zurückspielen (überschreibt vorhandene Daten)
-docker compose exec -T postgres pg_restore -U polldeck -d polldeck --clean --if-exists < backups/polldeck-2026-11-09.dump
+docker compose exec -T postgres pg_restore -U polldeck -d polldeck --clean --if-exists < backups/polldeck-2026-11-09_0330.dump
 # Uploads zurückspielen
-tar -xzf backups/uploads-2026-11-09.tar.gz -C data
+tar -xzf backups/uploads-2026-11-09_0330.tar.gz -C data
 docker compose start api web
 ```
 
@@ -155,7 +153,7 @@ docker compose start api web
 
 ```bash
 cd ~/docker/polldeck
-docker compose exec -T postgres pg_dump -U polldeck -d polldeck -Fc > backups/vor-update-$(date +%F).dump   # zur Sicherheit
+./scripts/backup.sh   # zur Sicherheit vorher sichern
 git pull
 docker compose up -d --build
 docker image prune -f
