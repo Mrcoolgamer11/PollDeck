@@ -34,6 +34,39 @@ export function getDeviceId(): string {
   return id;
 }
 
+const AVATAR_KEY = "pd_avatar";
+export const getSavedAvatar = () => {
+  try {
+    return localStorage.getItem(AVATAR_KEY);
+  } catch {
+    return null;
+  }
+};
+export const saveAvatar = (a: string) => {
+  try {
+    localStorage.setItem(AVATAR_KEY, a);
+  } catch {
+    /* noop */
+  }
+};
+
+/** Merkt sich, dass der Teilnehmer dieser Sitzung schon beigetreten ist (Name/Emoji gewählt). */
+const joinedKey = (code: string) => `pd_joined_${code}`;
+export const hasJoined = (code: string) => {
+  try {
+    return localStorage.getItem(joinedKey(code)) === "1";
+  } catch {
+    return false;
+  }
+};
+export const markJoined = (code: string) => {
+  try {
+    localStorage.setItem(joinedKey(code), "1");
+  } catch {
+    /* noop */
+  }
+};
+
 const NAME_KEY = "pd_name";
 export const getSavedName = () => {
   try {

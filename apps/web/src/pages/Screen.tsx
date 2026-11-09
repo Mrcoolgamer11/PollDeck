@@ -10,6 +10,7 @@ import { Spinner } from "../components/ui";
 import { toggleFullscreen } from "../components/Fullscreen";
 import { SlideView } from "../slides/SlideView";
 import { useReactions } from "../slides/Reactions";
+import { LobbyOverlay } from "../slides/Lobby";
 import { QrOverlay, joinInfo, useSlideKeys } from "./Present";
 
 /** Beamer-Ansicht: zeigt die aktuelle Folie bildschirmfüllend, synchron per WebSocket. */
@@ -37,7 +38,18 @@ export function ScreenPage() {
   const index = state?.live.currentIndex ?? 0;
   const count = state?.slides.length ?? 0;
   const canControl = role === "host";
-  const go = useCallback((i: number) => canControl && i >= 0 && i < count && emit("presenter:goto", { index: i }), [canControl, count, emit]);
+  const lobby = !!state?.live.lobby;
+  const go = useCallback(
+    (i: number) => {
+      if (!canControl) return;
+      if (lobby) {
+        if (i > index) emit("presenter:settings", { lobby: false });
+        return;
+      }
+      if (i >= 0 && i < count) emit("presenter:goto", { index: i });
+    },
+    [canControl, count, emit, lobby, index],
+  );
   const extra = useCallback((e: KeyboardEvent) => e.key === "f" && toggleFullscreen(), []);
   useSlideKeys(!!state && canControl, () => go(index - 1), () => go(index + 1), extra);
 
@@ -74,6 +86,7 @@ export function ScreenPage() {
           />
         ) : null}
         {state.live.qrFullscreen && !state.ended && <QrOverlay join={join} />}
+        {!state.ended && <LobbyOverlay active={state.live.lobby && state.mode === "PRESENTER"} join={join} theme={state.theme} participants={state.lobbyParticipants ?? []} />}
       </div>
       {!idle && (
         <div className="fixed bottom-3 right-3 flex items-center gap-2 text-xs text-white/70">

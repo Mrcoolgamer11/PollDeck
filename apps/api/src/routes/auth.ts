@@ -55,6 +55,8 @@ export async function publicConfig(): Promise<PublicConfig> {
     maxUploadMb: s.maxUploadMb,
     needsSetup: userCount === 0,
     mailEnabled: env.mailEnabled,
+    hasImprint: !!s.imprint.trim(),
+    hasPrivacy: !!s.privacy.trim(),
   };
 }
 
@@ -62,6 +64,12 @@ export async function authRoutes(app: FastifyInstance) {
   const loginLimit = { rateLimit: { max: env.RATE_LIMIT_LOGIN_PER_MIN, timeWindow: "1 minute" } };
 
   app.get("/config", async () => publicConfig());
+
+  /** Impressum und Datenschutzerklärung (öffentlich). */
+  app.get("/legal", async () => {
+    const s = await getSettings();
+    return { imprint: s.imprint, privacy: s.privacy, appName: s.appName };
+  });
 
   app.get("/me", async (req) => ({ user: req.user ? toPublicUser(req.user) : null }));
 

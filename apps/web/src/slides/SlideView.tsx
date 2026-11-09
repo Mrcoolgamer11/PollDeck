@@ -155,6 +155,7 @@ export function LeaderboardBody({ entries, topN, emptyText }: { entries: Leaderb
                 <div className="text-[1.6em]" aria-hidden>
                   {medals[i]}
                 </div>
+                {e.avatar && <div className="text-[1.6em] leading-none" aria-hidden>{e.avatar}</div>}
                 <div className="line-clamp-1">{e.name || t("present.anonymousShort")}</div>
                 <div className="pd-small tabular-nums opacity-80">{t("present.points", { count: e.score })}</div>
               </div>
@@ -175,7 +176,10 @@ export function LeaderboardBody({ entries, topN, emptyText }: { entries: Leaderb
           {top.slice(3).map((e) => (
             <li key={e.participantId} className="pd-text flex items-center gap-[1cqw] rounded-[0.6cqw] px-[1cqw] py-[0.5cqh]" style={{ background: "var(--pd-surface)" }}>
               <span className="w-[3cqw] font-bold tabular-nums">{e.rank}.</span>
-              <span className="flex-1 truncate">{e.name || t("present.anonymousShort")}</span>
+              <span className="flex-1 truncate">
+                {e.avatar && <span aria-hidden>{e.avatar} </span>}
+                {e.name || t("present.anonymousShort")}
+              </span>
               <span className="font-semibold tabular-nums">{e.score}</span>
             </li>
           ))}

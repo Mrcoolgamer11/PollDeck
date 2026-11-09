@@ -48,6 +48,8 @@ export function defaultLiveState(settings: PresentationSettings): SessionLiveSta
     showJoinBanner: settings.showJoinBanner,
     reactionsEnabled: settings.reactionsEnabled,
     qrFullscreen: false,
+    lobby: settings.lobby,
+    autoQuiz: settings.autoStartQuiz,
   };
 }
 
@@ -72,7 +74,8 @@ export async function loadRuntime(sessionId: string, fresh = false): Promise<Run
     mode: s.mode,
     ended: s.status === "ENDED",
     slides: s.slides as unknown as Slide[],
-    state: { ...defaultLiveState(settings), ...(s.state as object) } as SessionLiveState,
+    // Bereits laufende Sitzungen (ohne gespeichertes Lobby-Feld) nicht nachträglich in die Lobby schicken.
+    state: { ...defaultLiveState(settings), lobby: false, ...(s.state as object) } as SessionLiveState,
     theme: await resolveTheme(s.presentation).catch(() => BUILTIN_THEMES[0].config),
     settings,
   };

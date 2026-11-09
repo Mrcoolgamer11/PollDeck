@@ -157,6 +157,8 @@ export const slideSettingsSchema = z.object({
   showResultsToAudience: z.boolean().default(true),
   /** Bei Ablauf des Countdowns automatisch auflösen (Ergebnisse/Lösung einblenden) */
   revealOnTimerEnd: z.boolean().default(true),
+  /** Quiz: sofort auflösen, sobald alle verbundenen Teilnehmer geantwortet haben */
+  revealWhenAllAnswered: z.boolean().default(true),
 });
 export type SlideSettings = z.infer<typeof slideSettingsSchema>;
 

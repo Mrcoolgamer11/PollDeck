@@ -8,6 +8,7 @@ import {
   ChevronRight,
   Eye,
   EyeOff,
+  DoorOpen,
   Flag,
   Lock,
   Maximize,
@@ -27,6 +28,7 @@ import {
   Wifi,
   WifiOff,
   X,
+  Zap,
 } from "lucide-react";
 import { areResultsVisible, isInteractive, isQuiz, isRevealed, type HostState, type Slide } from "@polldeck/shared";
 import { post } from "../lib/api";
@@ -38,6 +40,7 @@ import { QrCode } from "../components/QrCode";
 import { toggleFullscreen } from "../components/Fullscreen";
 import { SlideView, formatCode } from "../slides/SlideView";
 import { SLIDE_META } from "../slides/meta";
+import { LobbyOverlay } from "../slides/Lobby";
 
 export function joinInfo(state: HostState, appDomain?: string) {
   const domain = appDomain || new URL(state.joinUrl).host;
@@ -97,8 +100,10 @@ export function PresentPage() {
   const index = state?.live.currentIndex ?? 0;
   const count = state?.slides.length ?? 0;
   const goto = useCallback((i: number) => state && i >= 0 && i < count && act("presenter:goto", { index: i }), [state, count, act]);
-  const prev = useCallback(() => goto(index - 1), [goto, index]);
-  const next = useCallback(() => goto(index + 1), [goto, index]);
+  const lobby = !!state?.live.lobby;
+  const prev = useCallback(() => !lobby && goto(index - 1), [goto, index, lobby]);
+  // In der Lobby startet „Weiter“ die Präsentation, statt eine Folie weiterzuschalten.
+  const next = useCallback(() => (lobby ? act("presenter:settings", { lobby: false }) : goto(index + 1)), [goto, index, lobby, act]);
   const slide: Slide | null = state?.slides[index] ?? null;
   const st = slide ? state?.live.slides[slide.id] ?? null : null;
 
@@ -173,6 +178,12 @@ export function PresentPage() {
           <IconButton label={t("present.toggleQr")} active={state.live.qrFullscreen} onClick={() => act("presenter:settings", { qrFullscreen: !state.live.qrFullscreen })}>
             <QrIcon className="h-5 w-5" />
           </IconButton>
+          <IconButton label={t("present.toggleLobby")} active={state.live.lobby} onClick={() => act("presenter:settings", { lobby: !state.live.lobby })}>
+            <DoorOpen className="h-5 w-5" />
+          </IconButton>
+          <IconButton label={t("present.toggleAutoQuiz")} active={state.live.autoQuiz} onClick={() => act("presenter:settings", { autoQuiz: !state.live.autoQuiz })}>
+            <Zap className="h-5 w-5" />
+          </IconButton>
           <IconButton label={t("present.toggleReactions")} active={state.live.reactionsEnabled} onClick={() => act("presenter:settings", { reactionsEnabled: !state.live.reactionsEnabled })}>
             <Smile className="h-5 w-5" />
           </IconButton>
@@ -216,7 +227,16 @@ export function PresentPage() {
               autoLeaderboard={state.settings.autoLeaderboard}
             />
             {state.live.qrFullscreen && <QrOverlay join={join} onClose={() => act("presenter:settings", { qrFullscreen: false })} />}
+            <LobbyOverlay active={state.live.lobby && !survey} join={join} theme={state.theme} participants={state.lobbyParticipants ?? []} />
           </div>
+          {state.live.lobby && !survey && (
+            <div className="mx-auto mt-3 flex w-full max-w-5xl flex-wrap items-center gap-3 rounded-xl bg-brand-50 p-3 dark:bg-brand-900/30">
+              <p className="flex-1 text-sm text-brand-900 dark:text-brand-100">{t("present.lobbyHint", { count: state.lobbyParticipants?.length ?? 0 })}</p>
+              <Button size="lg" onClick={() => act("presenter:settings", { lobby: false })}>
+                <Play className="h-5 w-5" aria-hidden /> {t("present.startPresentation")}
+              </Button>
+            </div>
+          )}
 
           {/* Steuerung */}
           <div className="mx-auto mt-3 flex w-full max-w-5xl flex-wrap items-center gap-2 rounded-xl bg-white p-2 shadow-sm ring-1 ring-slate-200 dark:bg-slate-900 dark:ring-slate-800">

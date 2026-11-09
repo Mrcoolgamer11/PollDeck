@@ -474,6 +474,18 @@ function SettingsTab() {
           {(id) => <Textarea id={id} rows={10} value={filterText} onChange={(e) => setFilterText(e.target.value)} />}
         </Field>
       </Card>
+      <Card className="space-y-4 lg:col-span-2">
+        <h2 className="font-semibold">{t("admin.legal")}</h2>
+        <p className="text-sm text-slate-500">{t("admin.legalHint")}</p>
+        <div className="grid gap-4 lg:grid-cols-2">
+          <Field label={t("legal.imprint")}>
+            {(id) => <Textarea id={id} rows={10} maxLength={20000} value={s.imprint} onChange={(e) => setS({ ...s, imprint: e.target.value })} />}
+          </Field>
+          <Field label={t("legal.privacy")}>
+            {(id) => <Textarea id={id} rows={10} maxLength={50000} value={s.privacy} onChange={(e) => setS({ ...s, privacy: e.target.value })} />}
+          </Field>
+        </div>
+      </Card>
       <div className="lg:col-span-2">
         <Button onClick={save} loading={busy}>
           {t("common.save")}

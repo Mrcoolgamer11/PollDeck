@@ -5,6 +5,7 @@ import type {
   AudienceState,
   HostState,
   LeaderboardEntry,
+  LobbyParticipant,
   MyResponse,
   QaQuestion,
   Reaction,
@@ -75,6 +76,7 @@ export function useHostSession(sessionId: string | undefined, preferredRole: "ho
     );
     socket.on("host:leaderboard", (lb: LeaderboardEntry[]) => setState((s) => (s ? { ...s, leaderboard: lb } : s)));
     socket.on("host:count", (n: number) => setState((s) => (s ? { ...s, participantCount: n } : s)));
+    socket.on("host:lobby", (list: LobbyParticipant[]) => setState((s) => (s ? { ...s, lobbyParticipants: list } : s)));
     socket.on("reaction", (r: { reaction: Reaction; id: string }) => reactionRef.current?.(r));
     socket.on("session:ended", () => setState((s) => (s ? { ...s, ended: true } : s)));
     return () => {
@@ -126,9 +128,9 @@ function saveQueue(code: string, q: QueuedAnswer[]) {
 
 export type AudienceError = "session_not_found" | "kicked" | "name_required" | "name_filtered" | "invalid_auth" | null;
 
-export function useAudienceSession(code: string | undefined, name: string | null) {
+export function useAudienceSession(code: string | undefined, name: string | null, avatar: string | null = null) {
   const [state, setState] = useState<AudienceBroadcast | null>(null);
-  const [participant, setParticipant] = useState<{ id: string; name: string | null } | null>(null);
+  const [participant, setParticipant] = useState<{ id: string; name: string | null; avatar?: string | null } | null>(null);
   const [myResponses, setMyResponses] = useState<MyResponse[]>([]);
   const [myScore, setMyScore] = useState<{ score: number; rank: number | null } | null>(null);
   const [myQuestions, setMyQuestions] = useState<Set<string>>(new Set());
@@ -167,7 +169,7 @@ export function useAudienceSession(code: string | undefined, name: string | null
 
   useEffect(() => {
     if (!code || name === null) return;
-    const socket = connect({ role: "participant", code, deviceId: getDeviceId(), name: name || undefined });
+    const socket = connect({ role: "participant", code, deviceId: getDeviceId(), name: name || undefined, avatar: avatar || undefined });
     socketRef.current = socket;
     setError(null);
     socket.on("connect", () => setStatus("connected"));
@@ -223,7 +225,7 @@ export function useAudienceSession(code: string | undefined, name: string | null
       socket.disconnect();
       socketRef.current = null;
     };
-  }, [code, name, flushQueue, refreshMe]);
+  }, [code, name, avatar, flushQueue, refreshMe]);
 
   const respond = useCallback(
     async (slideId: string, value: unknown): Promise<AckResult<{ id: string; status: MyResponse["status"]; isCorrect?: boolean; points?: number }>> => {

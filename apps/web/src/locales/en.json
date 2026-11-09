@@ -156,7 +156,9 @@
     "statUsers": "Users",
     "status": "Status",
     "useDefaultFilter": "Use default word filter",
-    "wordFilter": "Word filter"
+    "wordFilter": "Word filter",
+    "legal": "Imprint & privacy",
+    "legalHint": "Shown publicly at /impressum and /datenschutz and linked on the start, login and participant pages. Empty = no link."
   },
   "profile": {
     "title": "Profile",
@@ -333,7 +335,13 @@
     "yLabel": "Y axis",
     "revealOnTimerEnd": "Reveal automatically when the countdown ends",
     "revealOnTimerEndOn": "Results and the solution are shown as soon as time is up.",
-    "revealOnTimerEndOff": "Voting is only locked – you reveal manually with a click."
+    "revealOnTimerEndOff": "Voting is only locked – you reveal manually with a click.",
+    "revealWhenAllAnswered": "Reveal as soon as everyone has answered",
+    "revealWhenAllAnsweredHint": "As soon as all connected participants have answered, the solution is shown – without waiting for the countdown.",
+    "lobby": "Lobby at the start",
+    "lobbyHint": "Large QR code and join code; joined participants appear with name and emoji. “Start presentation” begins.",
+    "autoStartQuiz": "Quiz auto mode",
+    "autoStartQuizHint": "Quiz questions start automatically after 3 seconds when shown – no need to click “Start question”."
   },
   "present": {
     "answered": "answered",
@@ -420,7 +428,12 @@
     "toggleReactions": "Toggle reactions",
     "viewResults": "View results",
     "visible": "Visible",
-    "noResponses": "No responses"
+    "noResponses": "No responses",
+    "toggleLobby": "Show lobby",
+    "toggleAutoQuiz": "Quiz auto mode (questions start automatically)",
+    "lobbyHint_one": "Lobby: {{count}} participant has joined. Press “Start presentation” (or → / clicker) to begin.",
+    "lobbyHint_other": "Lobby: {{count}} participants have joined. Press “Start presentation” (or → / clicker) to begin.",
+    "startPresentation": "Start presentation"
   },
   "slideTypes": {
     "multiple_choice": {
@@ -542,7 +555,20 @@
     "plusPointsFor": "More points for {{label}}",
     "pointsFor": "Points for {{label}}",
     "yourGuess": "Your guess",
-    "range": "Between {{min}} and {{max}}"
+    "range": "Between {{min}} and {{max}}",
+    "chooseAvatar": "Choose your emoji",
+    "join": "Join",
+    "scoreAria": "Your score: {{score}}, rank {{rank}}",
+    "changeName": "Change name/emoji",
+    "youreIn": "You're in!",
+    "waitingForStart": "Waiting for the start …",
+    "toHome": "Back to start",
+    "saveResults": "Save results",
+    "myResults": "My results",
+    "print": "Print / PDF",
+    "summaryQuestion": "Question",
+    "summaryAnswer": "Your answer",
+    "summaryPoints": "Points"
   },
   "liveErrors": {
     "rate_limited": "Too fast – please wait a moment.",
@@ -620,5 +646,19 @@
     "pdfReport": "PDF report",
     "participantsCount_one": "{{count}} participant",
     "participantsCount_other": "{{count}} participants"
+  },
+  "legal": {
+    "nav": "Legal",
+    "imprint": "Imprint",
+    "privacy": "Privacy policy",
+    "back": "Back to start",
+    "empty": "No text has been added yet."
+  },
+  "lobby": {
+    "joinAt": "Join at",
+    "code": "with the code",
+    "joined_one": "{{count}} participant joined",
+    "joined_other": "{{count}} participants joined",
+    "waiting": "Scan the QR code to join!"
   }
 }

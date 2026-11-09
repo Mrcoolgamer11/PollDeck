@@ -12,11 +12,12 @@ Selbst gehostete, interaktive Präsentations- und Abstimmungsplattform nach dem 
 |---|---|
 | Folientypen | Multiple Choice (Balken, Torte, Donut, Punkte, Bilder pro Option), Wortwolke, offene Frage (Karten-Wand/Laufband), Skala, Ranking, 100 Punkte, Rasterfrage 2×2, Zahl schätzen, Q&A mit Upvotes, Quiz – Auswahl, Quiz – Texteingabe, Inhaltsfolie, Leaderboard |
 | Präsentieren | Präsentator-Ansicht + Beamer-Ansicht (synchron per WebSocket), Pfeiltasten/Presenter-Clicker, Ergebnisse ein-/ausblenden, Abstimmung sperren, Folie zurücksetzen, Countdown, Notizen, Beitritts-Banner mit QR, großer QR-Code, fliegende Reaktionen, Vollbild |
-| Quiz | Countdown, Punkte nach Geschwindigkeit, Tippfehler-Toleranz, Auflösung mit Richtig/Falsch auf dem Handy, Leaderboard mit Podium |
-| Teilnehmer | Mobile-first, keine App, Reconnect ohne Datenverlust (Antworten werden offline zwischengespeichert), Doppelabstimmung über anonyme Geräte-ID verhindert, Survey-Modus (eigenes Tempo) |
+| Lobby | Zum Start großer QR-Code und Beitrittscode, Teilnehmer erscheinen mit Name und Emoji; beim Start wandert der QR-Code animiert in die Beitrittsleiste |
+| Quiz | Countdown, Punkte nach Geschwindigkeit, Tippfehler-Toleranz, automatisches Auflösen bei Countdown-Ende oder sobald alle geantwortet haben (je Folie abschaltbar), Auto-Modus (Quizfragen starten von selbst), Auflösung mit Richtig/Falsch auf dem Handy, Leaderboard mit Podium und Emojis |
+| Teilnehmer | Mobile-first, keine App, Name und Emoji wählen, aktueller Punktestand im Kopfbereich, Reconnect ohne Datenverlust (Antworten werden offline zwischengespeichert), Doppelabstimmung über anonyme Geräte-ID verhindert, Survey-Modus (eigenes Tempo), Ende-Bildschirm mit eigenen Ergebnissen zum Speichern/Drucken |
 | Moderation | Vorabfreigabe für offene Antworten und Q&A, Wortfilter (DE/EN, im Admin erweiterbar), Antworten löschen, Teilnehmer entfernen |
 | Dashboard | Ordner, Suche, Duplizieren, Vorlagen, Teilen (Ansehen/Bearbeiten), JSON-Export/-Import, Quizfragen-Import (CSV/JSON), mehrere archivierte Sitzungen pro Präsentation, Export als CSV, XLSX und PDF-Bericht, eigene Themes |
-| Admin | Benutzer anlegen/sperren/löschen/zum Admin machen, Registrierung offen/Einladung/geschlossen, Einladungslinks (optional per Mail), Instanzname, Logo, Standardsprache, Wortfilter, Upload-Limit, Übersicht über aktive Sitzungen und Speicherverbrauch |
+| Admin | Benutzer anlegen/sperren/löschen/zum Admin machen, Registrierung offen/Einladung/geschlossen, Einladungslinks (optional per Mail), Instanzname, Logo, Standardsprache, Wortfilter, Upload-Limit, Impressum und Datenschutzerklärung (öffentlich unter `/impressum` und `/datenschutz`), Übersicht über aktive Sitzungen und Speicherverbrauch |
 | Technik | Node.js 22, Fastify, Socket.IO (Redis-Adapter), Prisma + PostgreSQL 16, Redis 7, React + Vite + Tailwind, i18next, eigene SVG-Charts, keine externen CDNs, keine Telemetrie |
 
 ---

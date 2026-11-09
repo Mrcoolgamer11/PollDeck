@@ -10,6 +10,7 @@ import {
   type AudienceBroadcast,
   type HostState,
   type LeaderboardEntry,
+  type LobbyParticipant,
   type MyResponse,
   type QaQuestion,
   type Slide,
@@ -92,13 +93,14 @@ export async function leaderboard(rt: Runtime): Promise<LeaderboardEntry[]> {
       where: { sessionId: rt.id, slideId: { in: quizSlideIds } },
       select: { participantId: true, points: true, isCorrect: true, slideId: true },
     }),
-    prisma.participant.findMany({ where: { sessionId: rt.id, kicked: false }, select: { id: true, name: true } }),
+    prisma.participant.findMany({ where: { sessionId: rt.id, kicked: false }, select: { id: true, name: true, avatar: true } }),
   ]);
   // Im Präsentationsmodus zählen nur aufgelöste Fragen.
   const visible =
     rt.mode === "PRESENTER" ? responses.filter((r) => isRevealed(slideState(rt, r.slideId))) : responses;
   const names = Object.fromEntries(participants.map((p) => [p.id, p.name]));
-  const data = computeLeaderboard(visible.filter((r) => r.participantId in names), names);
+  const avatars = Object.fromEntries(participants.map((p) => [p.id, p.avatar]));
+  const data = computeLeaderboard(visible.filter((r) => r.participantId in names), names, avatars);
   lbCache.set(rt.id, { at: Date.now(), data });
   return data;
 }
@@ -107,6 +109,16 @@ export async function myScore(rt: Runtime, participantId: string) {
   const lb = await leaderboard(rt);
   const me = lb.find((e) => e.participantId === participantId);
   return { score: me?.score ?? 0, rank: me?.rank ?? null };
+}
+
+/** Teilnehmer für die Lobby-Anzeige (Name + Emoji). */
+export async function lobbyParticipants(sessionId: string): Promise<LobbyParticipant[]> {
+  return prisma.participant.findMany({
+    where: { sessionId, kicked: false },
+    select: { id: true, name: true, avatar: true },
+    orderBy: { createdAt: "asc" },
+    take: 500,
+  });
 }
 
 /** Öffentlicher Zustand für alle Teilnehmer einer Sitzung. */
@@ -121,6 +133,7 @@ export async function audienceBroadcast(rt: Runtime): Promise<AudienceBroadcast>
     settings: rt.settings,
     slideCount: rt.slides.length,
     serverTime: Date.now(),
+    lobby: rt.mode === "PRESENTER" && rt.state.lobby,
   };
   if (rt.mode === "SURVEY") {
     return {
@@ -212,5 +225,6 @@ export async function hostState(rt: Runtime): Promise<HostState> {
     pending,
     serverTime: Date.now(),
     joinUrl: `${env.APP_URL}/${rt.code}`,
+    lobbyParticipants: await lobbyParticipants(rt.id),
   };
 }

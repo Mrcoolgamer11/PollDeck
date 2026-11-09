@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { BarChart3, LogOut, Moon, Palette, Shield, Sun, User } from "lucide-react";
 import { useApp } from "../lib/app";
 import { LanguageSwitch } from "./LanguageSwitch";
+import { LegalLinks } from "./LegalLinks";
 import { IconButton, cx } from "./ui";
 
 export function Logo({ className }: { className?: string }) {
@@ -106,6 +107,7 @@ export function AuthLayout({ children, title }: { children: React.ReactNode; tit
           {children}
         </div>
       </main>
+      <LegalLinks />
     </div>
   );
 }

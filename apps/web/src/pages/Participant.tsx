@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState, type CSSProperties, type ReactNode } from "react";
 import { Link, useParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2, ChevronLeft, ChevronRight, Clock, Loader2, Lock, UserRound, WifiOff, XCircle } from "lucide-react";
+import { CheckCircle2, ChevronLeft, ChevronRight, Clock, Loader2, Lock, Star, UserRound, WifiOff, XCircle } from "lucide-react";
+import { EndScreen } from "../participant/EndScreen";
 import {
+  AVATARS,
   isClosed,
   isInteractive,
   isQuiz,
@@ -17,7 +19,8 @@ import {
 } from "@polldeck/shared";
 import { get } from "../lib/api";
 import { useAudienceSession } from "../lib/live";
-import { getSavedName, saveName } from "../lib/device";
+import { getSavedAvatar, getSavedName, hasJoined, markJoined, saveAvatar, saveName } from "../lib/device";
+import { LegalLinks } from "../components/LegalLinks";
 import { useCountdown, useServerOffset } from "../lib/useServerClock";
 import { FONT_STACKS } from "../lib/theme";
 import { useApp } from "../lib/app";
@@ -46,9 +49,57 @@ function Card({ children, className }: { children: ReactNode; className?: string
   return <div className={cx("rounded-2xl bg-white p-5 text-slate-900 shadow-lg", className)}>{children}</div>;
 }
 
-function NameForm({ initial, onSubmit, required, error }: { initial: string; onSubmit: (n: string) => void; required: boolean; error?: string }) {
+function AvatarPicker({ value, onChange }: { value: string; onChange: (a: string) => void }) {
+  const { t } = useTranslation();
+  return (
+    <fieldset>
+      <legend className="mb-2 text-sm font-medium text-slate-700">{t("participant.chooseAvatar")}</legend>
+      <div className="grid grid-cols-8 gap-1.5" role="radiogroup" aria-label={t("participant.chooseAvatar")}>
+        {AVATARS.map((a) => (
+          <button
+            key={a}
+            type="button"
+            role="radio"
+            aria-checked={value === a}
+            aria-label={a}
+            onClick={() => onChange(a)}
+            className={cx(
+              "flex aspect-square items-center justify-center rounded-xl text-2xl transition",
+              value === a ? "bg-[color:var(--pd-accent)] ring-2 ring-[color:var(--pd-accent)] ring-offset-2" : "bg-slate-100 hover:bg-slate-200",
+            )}
+          >
+            <span aria-hidden>{a}</span>
+          </button>
+        ))}
+      </div>
+    </fieldset>
+  );
+}
+
+const randomAvatar = () => AVATARS[Math.floor(Math.random() * AVATARS.length)];
+
+/** Beitritt: Anzeigename und Emoji wählen (#3). */
+function NameForm({
+  initial,
+  initialAvatar,
+  onSubmit,
+  required,
+  error,
+}: {
+  initial: string;
+  initialAvatar: string;
+  onSubmit: (n: string, avatar: string) => void;
+  required: boolean;
+  error?: string;
+}) {
   const { t } = useTranslation();
   const [name, setName] = useState(initial);
+  const [avatar, setAvatar] = useState(initialAvatar);
+  const submit = (n: string) => {
+    saveName(n);
+    saveAvatar(avatar);
+    onSubmit(n, avatar);
+  };
   return (
     <Card>
       <form
@@ -56,12 +107,18 @@ function NameForm({ initial, onSubmit, required, error }: { initial: string; onS
         onSubmit={(e) => {
           e.preventDefault();
           if (required && !name.trim()) return;
-          saveName(name.trim());
-          onSubmit(name.trim());
+          submit(name.trim());
         }}
       >
-        <h1 className="text-xl font-bold">{t("participant.whatsYourName")}</h1>
-        <p className="text-sm text-slate-600">{required ? t("participant.nameRequired") : t("participant.nameOptional")}</p>
+        <div className="flex items-center gap-3">
+          <span className="flex h-14 w-14 shrink-0 items-center justify-center rounded-2xl bg-slate-100 text-4xl" aria-hidden>
+            {avatar}
+          </span>
+          <div>
+            <h1 className="text-xl font-bold">{t("participant.whatsYourName")}</h1>
+            <p className="text-sm text-slate-600">{required ? t("participant.nameRequired") : t("participant.nameOptional")}</p>
+          </div>
+        </div>
         {error && (
           <p className="text-sm text-red-600" role="alert">
             {error}
@@ -76,18 +133,12 @@ function NameForm({ initial, onSubmit, required, error }: { initial: string; onS
           value={name}
           onChange={(e) => setName(e.target.value)}
         />
+        <AvatarPicker value={avatar} onChange={setAvatar} />
         <Button type="submit" size="lg" className="w-full" disabled={required && !name.trim()} style={{ background: "var(--pd-accent)" }}>
-          {t("participant.continue")}
+          {t("participant.join")}
         </Button>
         {!required && (
-          <button
-            type="button"
-            className="w-full text-center text-sm text-slate-500 underline"
-            onClick={() => {
-              saveName("");
-              onSubmit("");
-            }}
-          >
+          <button type="button" className="w-full text-center text-sm text-slate-500 underline" onClick={() => submit("")}>
             {t("participant.stayAnonymous")}
           </button>
         )}
@@ -102,6 +153,8 @@ export function ParticipantPage() {
   const { config } = useApp();
   const [info, setInfo] = useState<{ title: string; requireNames: boolean } | null | "missing">(null);
   const [name, setName] = useState<string | null>(null);
+  const [avatar, setAvatar] = useState<string>(() => getSavedAvatar() || randomAvatar());
+  const [editing, setEditing] = useState(false);
 
   useEffect(() => {
     if (!code || !/^\d{6}$/.test(code)) {
@@ -111,14 +164,15 @@ export function ParticipantPage() {
     get<{ title: string; requireNames: boolean }>(`/api/join/${code}`)
       .then((r) => {
         setInfo(r);
+        // Wer dieser Sitzung schon beigetreten ist (z. B. nach Neuladen), kommt direkt rein.
+        // Alle anderen wählen zuerst Anzeigenamen und Emoji.
         const saved = getSavedName();
-        // Ohne Namenspflicht direkt beitreten (gespeicherter Name wird mitgeschickt).
-        if (!r.requireNames || saved) setName(saved);
+        if (code && hasJoined(code) && (!r.requireNames || saved)) setName(saved);
       })
       .catch(() => setInfo("missing"));
   }, [code]);
 
-  const live = useAudienceSession(info && info !== "missing" ? code : undefined, name);
+  const live = useAudienceSession(info && info !== "missing" ? code : undefined, name, avatar);
 
   if (info === "missing" || live.error === "session_not_found") {
     return (
@@ -135,15 +189,22 @@ export function ParticipantPage() {
     );
   }
   if (!info) return <Spinner className="min-h-screen" />;
-  if (name === null || live.error === "name_required" || live.error === "name_filtered") {
+  if (name === null || editing || live.error === "name_required" || live.error === "name_filtered") {
     return (
       <Shell header={<TopBar title={info.title} appName={config?.appName} />}>
         <NameForm
-          initial={getSavedName()}
+          initial={name ?? getSavedName()}
+          initialAvatar={avatar}
           required={info.requireNames || live.error === "name_required"}
           error={live.error === "name_filtered" ? t("liveErrors.name_filtered") : undefined}
-          onSubmit={(n) => setName(n)}
+          onSubmit={(n, a) => {
+            if (code) markJoined(code);
+            setAvatar(a);
+            setName(n);
+            setEditing(false);
+          }}
         />
+        <LegalLinks />
       </Shell>
     );
   }
@@ -158,7 +219,7 @@ export function ParticipantPage() {
     );
   }
   if (!live.state) return <Spinner className="min-h-screen" />;
-  return <LiveView live={live} />;
+  return <LiveView live={live} onEditName={() => setEditing(true)} />;
 }
 
 function TopBar({ title, appName, status, right }: { title: string; appName?: string; status?: string; right?: ReactNode }) {
@@ -184,7 +245,7 @@ function TopBar({ title, appName, status, right }: { title: string; appName?: st
 
 type Live = ReturnType<typeof useAudienceSession>;
 
-function LiveView({ live }: { live: Live }) {
+function LiveView({ live, onEditName }: { live: Live; onEditName: () => void }) {
   const { t } = useTranslation();
   const { config } = useApp();
   const state = live.state as AudienceBroadcast;
@@ -194,21 +255,14 @@ function LiveView({ live }: { live: Live }) {
   const slides = state.slides ?? [];
   const slide = survey ? slides[surveyIndex] ?? null : state.slide;
   const slideState = survey ? (slide ? state.slideStates?.[slide.id] ?? null : null) : state.slideState;
+  const me = live.participant;
+  // Punkte anzeigen, sobald gespielt wird (#7).
+  const showScore = !!live.myScore && (live.myScore.score > 0 || (slide && (isQuiz(slide.type) || slide.type === "leaderboard")));
 
   if (state.ended) {
     return (
       <Shell theme={state.theme} header={<TopBar title={state.title} appName={config?.appName} />}>
-        <Card className="mt-10 text-center">
-          <CheckCircle2 className="mx-auto mb-3 h-10 w-10 text-emerald-500" aria-hidden />
-          <h1 className="mb-2 text-xl font-bold">{t("participant.endedTitle")}</h1>
-          <p className="text-sm text-slate-600">{t("participant.ended")}</p>
-          {live.myScore && live.myScore.score > 0 && (
-            <p className="mt-4 text-sm">
-              {t("participant.yourScore", { score: live.myScore.score })}
-              {live.myScore.rank && ` · ${t("participant.rank", { rank: live.myScore.rank })}`}
-            </p>
-          )}
-        </Card>
+        <EndScreen live={live} />
       </Shell>
     );
   }
@@ -222,11 +276,29 @@ function LiveView({ live }: { live: Live }) {
           appName={config?.appName}
           status={live.status}
           right={
-            live.participant?.name ? (
-              <span className="hidden items-center gap-1 text-xs opacity-80 sm:inline-flex">
-                <UserRound className="h-3.5 w-3.5" aria-hidden /> {live.participant.name}
-              </span>
-            ) : null
+            <>
+              {showScore && live.myScore && (
+                <span
+                  className="inline-flex items-center gap-1 rounded-full bg-[color:var(--pd-accent)] px-2.5 py-1 text-xs font-bold tabular-nums text-white"
+                  role="status"
+                  aria-label={t("participant.scoreAria", { score: live.myScore.score, rank: live.myScore.rank ?? "–" })}
+                >
+                  <Star className="h-3.5 w-3.5" aria-hidden /> {live.myScore.score.toLocaleString()}
+                  {live.myScore.rank && <span className="opacity-80">· #{live.myScore.rank}</span>}
+                </span>
+              )}
+              {me && (
+                <button
+                  className="inline-flex max-w-[9rem] items-center gap-1 rounded-full bg-white/10 px-2 py-1 text-xs font-medium hover:bg-white/20"
+                  onClick={onEditName}
+                  aria-label={t("participant.changeName")}
+                  title={t("participant.changeName")}
+                >
+                  <span aria-hidden>{me.avatar ?? <UserRound className="h-3.5 w-3.5" />}</span>
+                  <span className="truncate">{me.name || t("present.anonymousShort")}</span>
+                </button>
+              )}
+            </>
           }
         />
       }
@@ -249,7 +321,21 @@ function LiveView({ live }: { live: Live }) {
           </button>
         </div>
       )}
-      {slide ? (
+      {state.lobby ? (
+        <Card className="mt-6 text-center">
+          <div className="mx-auto mb-3 flex h-24 w-24 animate-pop items-center justify-center rounded-3xl bg-slate-100 text-6xl" aria-hidden>
+            {me?.avatar ?? "🙂"}
+          </div>
+          <h1 className="text-2xl font-bold">{t("participant.youreIn")}</h1>
+          <p className="mt-1 text-lg font-semibold">{me?.name || t("present.anonymousShort")}</p>
+          <p className="mt-4 flex items-center justify-center gap-2 text-sm text-slate-600">
+            <Loader2 className="h-4 w-4 animate-spin" aria-hidden /> {t("participant.waitingForStart")}
+          </p>
+          <Button variant="secondary" className="mt-4" onClick={onEditName}>
+            {t("participant.changeName")}
+          </Button>
+        </Card>
+      ) : slide ? (
         <SlidePanel
           key={`${slide.id}-${slideState?.generation ?? 0}`}
           slide={slide}
@@ -267,6 +353,16 @@ function LiveView({ live }: { live: Live }) {
       )}
       <ParticipantExtras live={live} slide={slide} />
     </Shell>
+  );
+}
+
+function StartsIn({ at, now }: { at: number; now: () => number }) {
+  const left = useCountdown(at, now);
+  if (!left) return null;
+  return (
+    <p className="mt-3 text-5xl font-extrabold tabular-nums" style={{ color: "var(--pd-accent)" }} aria-live="assertive">
+      {left}
+    </p>
   );
 }
 
@@ -311,6 +407,16 @@ function SlidePanel({
   const answered = mine.length > 0 && (!multi || mine.length >= limit);
   const closed = !survey && isClosed(slideState, now());
   const revealed = survey ? answered : isRevealed(slideState, now());
+
+  // Automatisch gestartete Quizfrage (#6): zum Startzeitpunkt neu rendern.
+  useEffect(() => {
+    const at = slideState?.quizStartedAt;
+    if (!at) return;
+    const ms = at - now() + 50;
+    if (ms <= 0) return;
+    const h = setTimeout(() => tick((x) => x + 1), ms);
+    return () => clearTimeout(h);
+  }, [slideState?.quizStartedAt, now]);
 
   // Countdown-Ende zuverlässig neu rendern.
   useEffect(() => {
@@ -379,8 +485,13 @@ function SlidePanel({
   } else if (slide.type === "qa") {
     body = <ParticipantExtras.Qa live={live} slide={slide} closed={closed} />;
   } else if (interactive && Input) {
-    if (quiz && !survey && !slideState?.quizStartedAt) {
-      body = <p className="py-6 text-center text-lg font-semibold">{t("participant.quizSoon")}</p>;
+    if (quiz && !survey && (!slideState?.quizStartedAt || slideState.quizStartedAt > now())) {
+      body = (
+        <div className="py-6 text-center">
+          <p className="text-lg font-semibold">{t("participant.quizSoon")}</p>
+          {slideState?.quizStartedAt && <StartsIn at={slideState.quizStartedAt} now={now} />}
+        </div>
+      );
     } else if (answered || (quiz && revealed)) {
       body = <Answered slide={slide} mine={mine} revealed={revealed} results={results} theme={state.theme} quiz={quiz} />;
     } else if (closed) {
@@ -408,7 +519,7 @@ function SlidePanel({
           <h1 className="break-words text-xl font-bold leading-snug">{slide.title}</h1>
           {slide.description && <p className="mt-1 text-sm text-slate-600">{slide.description}</p>}
         </div>
-        {endsAt && !answered && <CountdownChip endsAt={endsAt} now={survey ? Date.now : now} />}
+        {endsAt && !answered && (!slideState?.quizStartedAt || slideState.quizStartedAt <= now()) && <CountdownChip endsAt={endsAt} now={survey ? Date.now : now} />}
       </div>
       {slide.imageUrl && <img src={slide.imageUrl} alt="" className="mb-4 max-h-56 w-full rounded-xl object-contain" />}
       {error && (
@@ -475,7 +586,7 @@ function Answered({
   );
 }
 
-function LeaderboardMobile({ entries, me, score }: { entries: { participantId: string; name: string; score: number; rank: number }[]; me?: string; score: { score: number; rank: number | null } | null }) {
+function LeaderboardMobile({ entries, me, score }: { entries: { participantId: string; name: string; avatar?: string | null; score: number; rank: number }[]; me?: string; score: { score: number; rank: number | null } | null }) {
   const { t } = useTranslation();
   return (
     <div className="space-y-3">
@@ -489,7 +600,8 @@ function LeaderboardMobile({ entries, me, score }: { entries: { participantId: s
         {entries.map((e) => (
           <li key={e.participantId} className={cx("flex justify-between rounded-lg px-3 py-2 text-sm", e.participantId === me ? "bg-[color:var(--pd-accent)] font-bold text-white" : "bg-slate-50")}>
             <span>
-              {e.rank}. {e.name || t("present.anonymousShort")}
+              {e.rank}. {e.avatar ? `${e.avatar} ` : ""}
+              {e.name || t("present.anonymousShort")}
             </span>
             <span className="tabular-nums">{e.score}</span>
           </li>

@@ -7,6 +7,7 @@ import { get } from "../lib/api";
 import { Logo } from "../components/Layout";
 import { LanguageSwitch } from "../components/LanguageSwitch";
 import { Button } from "../components/ui";
+import { LegalLinks } from "../components/LegalLinks";
 
 export function HomePage() {
   const { t } = useTranslation();
@@ -79,6 +80,7 @@ export function HomePage() {
           </Button>
         </form>
       </main>
+      <LegalLinks className="text-white" />
     </div>
   );
 }

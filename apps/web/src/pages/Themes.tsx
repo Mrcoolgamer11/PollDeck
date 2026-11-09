@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Palette, Plus, Trash2 } from "lucide-react";
-import { themeConfigSchema, type Slide, type ThemeConfig } from "@polldeck/shared";
+import { slideSettingsSchema, themeConfigSchema, type Slide, type ThemeConfig } from "@polldeck/shared";
 import { del, get, post, put } from "../lib/api";
 import { Button, Card, Field, IconButton, Input, Select, Spinner, cx, useErrorText, useToast } from "../components/ui";
 import { SlideView } from "../slides/SlideView";
@@ -20,15 +20,7 @@ const sampleSlide: Slide = {
   position: 0,
   title: "",
   background: {},
-  settings: {
-    hideResultsUntilReveal: false,
-    allowMultipleSubmissions: false,
-    responseLimit: null,
-    timerSeconds: null,
-    moderation: false,
-    showResultsToAudience: true,
-    revealOnTimerEnd: true,
-  },
+  settings: slideSettingsSchema.parse({}),
   config: {
     options: [
       { id: "a", label: "A", imageUrl: null },

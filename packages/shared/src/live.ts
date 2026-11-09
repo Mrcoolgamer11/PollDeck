@@ -59,7 +59,21 @@ export interface SessionLiveState {
   showJoinBanner: boolean;
   reactionsEnabled: boolean;
   qrFullscreen: boolean;
+  /** Lobby aktiv (großer QR-Code, Teilnehmerliste) – endet mit dem Start */
+  lobby: boolean;
+  /** Quiz-Auto-Modus: Quizfragen starten automatisch beim Anzeigen */
+  autoQuiz: boolean;
 }
+
+/** Teilnehmer in der Lobby (für Beamer/Präsentator). */
+export interface LobbyParticipant {
+  id: string;
+  name: string | null;
+  avatar: string | null;
+}
+
+/** Wartezeit vor dem automatischen Start einer Quizfrage (Auto-Modus). */
+export const AUTO_QUIZ_DELAY_MS = 3000;
 
 export interface QaQuestion {
   id: string;
@@ -74,6 +88,8 @@ export interface QaQuestion {
 
 /** An Teilnehmer gesendeter Zustand. */
 export interface AudienceState {
+  /** Lobby aktiv: Teilnehmer warten auf den Start */
+  lobby?: boolean;
   sessionId: string;
   code: string;
   mode: "PRESENTER" | "SURVEY";
@@ -94,7 +110,7 @@ export interface AudienceState {
   leaderboard?: LeaderboardEntry[];
   myScore?: { score: number; rank: number | null };
   serverTime: number;
-  participant: { id: string; name: string | null };
+  participant: { id: string; name: string | null; avatar?: string | null };
 }
 
 /** An Präsentator- und Beamer-Ansicht gesendeter Zustand. */
@@ -117,6 +133,7 @@ export interface HostState {
   pending: Record<string, { id: string; text: string; createdAt: string }[]>;
   serverTime: number;
   joinUrl: string;
+  lobbyParticipants: LobbyParticipant[];
 }
 
 export interface MyResponse {

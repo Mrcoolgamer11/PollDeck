@@ -156,7 +156,9 @@
     "statUsers": "Benutzer",
     "status": "Status",
     "useDefaultFilter": "Standard-Wortfilter verwenden",
-    "wordFilter": "Wortfilter"
+    "wordFilter": "Wortfilter",
+    "legal": "Impressum & Datenschutz",
+    "legalHint": "Wird öffentlich unter /impressum und /datenschutz angezeigt und auf Start-, Login- und Teilnehmerseiten verlinkt. Leer = kein Link."
   },
   "profile": {
     "title": "Profil",
@@ -333,7 +335,13 @@
     "yLabel": "Y-Achse",
     "revealOnTimerEnd": "Bei Ablauf des Countdowns automatisch auflösen",
     "revealOnTimerEndOn": "Ergebnisse und Lösung werden eingeblendet, sobald die Zeit abgelaufen ist.",
-    "revealOnTimerEndOff": "Die Abstimmung wird nur gesperrt – du löst per Klick selbst auf."
+    "revealOnTimerEndOff": "Die Abstimmung wird nur gesperrt – du löst per Klick selbst auf.",
+    "revealWhenAllAnswered": "Sofort auflösen, wenn alle geantwortet haben",
+    "revealWhenAllAnsweredHint": "Sobald alle verbundenen Teilnehmer geantwortet haben, wird die Lösung gezeigt – ohne auf den Countdown zu warten.",
+    "lobby": "Lobby zum Start",
+    "lobbyHint": "Großer QR-Code und Code, beigetretene Teilnehmer erscheinen mit Name und Emoji. Mit „Präsentation starten“ geht es los.",
+    "autoStartQuiz": "Quiz-Auto-Modus",
+    "autoStartQuizHint": "Quizfragen starten automatisch nach 3 Sekunden, sobald sie angezeigt werden – ohne Klick auf „Quizfrage starten“."
   },
   "present": {
     "answered": "beantwortet",
@@ -420,7 +428,12 @@
     "toggleReactions": "Reaktionen ein/aus",
     "viewResults": "Ergebnisse ansehen",
     "visible": "Sichtbar",
-    "noResponses": "Keine Antworten"
+    "noResponses": "Keine Antworten",
+    "toggleLobby": "Lobby anzeigen",
+    "toggleAutoQuiz": "Quiz-Auto-Modus (Quizfragen starten automatisch)",
+    "lobbyHint_one": "Lobby: {{count}} Teilnehmer ist beigetreten. Mit „Präsentation starten“ (oder → / Clicker) geht's los.",
+    "lobbyHint_other": "Lobby: {{count}} Teilnehmer sind beigetreten. Mit „Präsentation starten“ (oder → / Clicker) geht's los.",
+    "startPresentation": "Präsentation starten"
   },
   "slideTypes": {
     "multiple_choice": {
@@ -542,7 +555,20 @@
     "plusPointsFor": "Mehr Punkte für {{label}}",
     "pointsFor": "Punkte für {{label}}",
     "yourGuess": "Deine Schätzung",
-    "range": "Zwischen {{min}} und {{max}}"
+    "range": "Zwischen {{min}} und {{max}}",
+    "chooseAvatar": "Wähle dein Emoji",
+    "join": "Mitmachen",
+    "scoreAria": "Deine Punkte: {{score}}, Platz {{rank}}",
+    "changeName": "Name/Emoji ändern",
+    "youreIn": "Du bist dabei!",
+    "waitingForStart": "Warte auf den Start …",
+    "toHome": "Zur Startseite",
+    "saveResults": "Ergebnisse speichern",
+    "myResults": "Meine Ergebnisse",
+    "print": "Drucken / PDF",
+    "summaryQuestion": "Frage",
+    "summaryAnswer": "Deine Antwort",
+    "summaryPoints": "Punkte"
   },
   "liveErrors": {
     "rate_limited": "Zu schnell – bitte kurz warten.",
@@ -620,5 +646,19 @@
     "pdfReport": "PDF-Bericht",
     "participantsCount_one": "{{count}} Teilnehmer",
     "participantsCount_other": "{{count}} Teilnehmer"
+  },
+  "legal": {
+    "nav": "Rechtliches",
+    "imprint": "Impressum",
+    "privacy": "Datenschutz",
+    "back": "Zur Startseite",
+    "empty": "Noch kein Text hinterlegt."
+  },
+  "lobby": {
+    "joinAt": "Mitmachen auf",
+    "code": "mit dem Code",
+    "joined_one": "{{count}} Teilnehmer dabei",
+    "joined_other": "{{count}} Teilnehmer dabei",
+    "waiting": "Scanne den QR-Code, um mitzumachen!"
   }
 }

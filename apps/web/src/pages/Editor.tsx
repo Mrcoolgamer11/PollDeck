@@ -560,6 +560,14 @@ function SlideSettingsForm({ slide, onChange }: { slide: Slide; onChange: (c: Pa
           {(slide.type === "open_ended" || slide.type === "qa") && (
             <Toggle checked={s.moderation} onChange={(v) => set({ moderation: v })} label={t("editor.moderation")} description={t("editor.moderationHint")} />
           )}
+          {isQuiz && (
+            <Toggle
+              checked={s.revealWhenAllAnswered}
+              onChange={(v) => set({ revealWhenAllAnswered: v })}
+              label={t("editor.revealWhenAllAnswered")}
+              description={t("editor.revealWhenAllAnsweredHint")}
+            />
+          )}
           {(isQuiz || s.timerSeconds !== null) && (
             <Toggle
               checked={s.revealOnTimerEnd}
@@ -625,6 +633,8 @@ function PresentationSettingsModal({
       <Toggle checked={settings.showParticipantCount} onChange={(v) => onChange({ showParticipantCount: v })} label={t("editor.showParticipantCount")} />
       <Toggle checked={settings.requireNames} onChange={(v) => onChange({ requireNames: v })} label={t("editor.requireNames")} description={t("editor.requireNamesHint")} />
       <Toggle checked={settings.autoLeaderboard} onChange={(v) => onChange({ autoLeaderboard: v })} label={t("editor.autoLeaderboard")} />
+      <Toggle checked={settings.lobby} onChange={(v) => onChange({ lobby: v })} label={t("editor.lobby")} description={t("editor.lobbyHint")} />
+      <Toggle checked={settings.autoStartQuiz} onChange={(v) => onChange({ autoStartQuiz: v })} label={t("editor.autoStartQuiz")} description={t("editor.autoStartQuizHint")} />
     </Modal>
   );
 }

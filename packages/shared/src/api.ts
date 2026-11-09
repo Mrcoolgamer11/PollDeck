@@ -49,6 +49,8 @@ export interface PublicConfig {
   maxUploadMb: number;
   needsSetup: boolean;
   mailEnabled: boolean;
+  hasImprint: boolean;
+  hasPrivacy: boolean;
 }
 
 export const instanceSettingsSchema = z.object({
@@ -59,6 +61,10 @@ export const instanceSettingsSchema = z.object({
   wordFilter: z.array(z.string().trim().min(1).max(60)).max(2000),
   useDefaultWordFilter: z.boolean(),
   maxUploadMb: z.number().int().min(1).max(100),
+  /** Impressum (Freitext, wird auf /impressum angezeigt) */
+  imprint: z.string().max(20000).default(""),
+  /** Datenschutzerklärung (Freitext, wird auf /datenschutz angezeigt) */
+  privacy: z.string().max(50000).default(""),
 });
 export type InstanceSettings = z.infer<typeof instanceSettingsSchema>;
 
@@ -137,6 +143,10 @@ export const presentationSettingsSchema = z.object({
   requireNames: z.boolean().default(false),
   /** Quiz: Leaderboard automatisch nach jeder Quizfrage anzeigen */
   autoLeaderboard: z.boolean().default(false),
+  /** Quiz-Auto-Modus: Quizfragen starten automatisch, sobald sie angezeigt werden */
+  autoStartQuiz: z.boolean().default(false),
+  /** Lobby mit großem QR-Code und Teilnehmerliste beim Start der Sitzung */
+  lobby: z.boolean().default(true),
 });
 export type PresentationSettings = z.infer<typeof presentationSettingsSchema>;
 
@@ -160,6 +170,14 @@ export const joinSchema = z.object({
   deviceId: z.string().min(8).max(64),
   name: z.string().trim().max(40).optional(),
 });
+
+/** Auswahl an Emoji-Avataren für Teilnehmer (Lobby/Leaderboard). */
+export const AVATARS = [
+  "🦊", "🐼", "🐸", "🐯", "🦁", "🐨", "🐵", "🐧", "🦄", "🐙", "🐢", "🦖",
+  "🐝", "🦋", "🐬", "🦉", "🐱", "🐶", "🐰", "🐻", "🚀", "⚽", "🎸", "🍕",
+  "🌈", "⭐", "🔥", "🍀", "🎮", "🧠", "👾", "🤖",
+] as const;
+export const isAvatar = (v: unknown): v is string => typeof v === "string" && (AVATARS as readonly string[]).includes(v);
 
 export const REACTIONS = ["heart", "thumbs", "question", "laugh"] as const;
 export type Reaction = (typeof REACTIONS)[number];

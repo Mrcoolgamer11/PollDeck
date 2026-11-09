@@ -20,6 +20,8 @@ export function computeQuizPoints(params: {
 export interface LeaderboardEntry {
   participantId: string;
   name: string;
+  /** Emoji-Avatar des Teilnehmers */
+  avatar?: string | null;
   score: number;
   correct: number;
   rank: number;
@@ -29,6 +31,7 @@ export interface LeaderboardEntry {
 export function computeLeaderboard(
   responses: { participantId: string; points?: number; isCorrect?: boolean | null }[],
   names: Record<string, string | null | undefined>,
+  avatars: Record<string, string | null | undefined> = {},
 ): LeaderboardEntry[] {
   const map = new Map<string, { score: number; correct: number }>();
   for (const r of responses) {
@@ -41,6 +44,7 @@ export function computeLeaderboard(
     .map(([participantId, e]) => ({
       participantId,
       name: names[participantId] || "",
+      avatar: avatars[participantId] ?? null,
       score: e.score,
       correct: e.correct,
       rank: 0,

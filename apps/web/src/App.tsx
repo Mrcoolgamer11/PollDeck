@@ -5,6 +5,7 @@ import { Spinner } from "./components/ui";
 import { HomePage } from "./pages/Home";
 import { ForgotPage, LoginPage, RegisterPage, ResetPage } from "./pages/Auth";
 import { ParticipantPage } from "./pages/Participant";
+import { LegalPage } from "./pages/Legal";
 
 // Große Seiten erst bei Bedarf laden, damit Teilnehmer nur wenig herunterladen.
 const AppLayout = lazy(() => import("./components/Layout").then((m) => ({ default: m.AppLayout })));
@@ -38,6 +39,8 @@ export function App() {
       <Route path="/register" element={<RegisterPage />} />
       <Route path="/forgot" element={<ForgotPage />} />
       <Route path="/reset/:token" element={<ResetPage />} />
+      <Route path="/impressum" element={<LegalPage kind="imprint" />} />
+      <Route path="/datenschutz" element={<LegalPage kind="privacy" />} />
       <Route
         element={
           <RequireAuth>

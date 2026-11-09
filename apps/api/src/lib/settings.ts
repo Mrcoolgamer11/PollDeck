@@ -14,6 +14,8 @@ export function defaultSettings(): InstanceSettings {
     wordFilter: [],
     useDefaultWordFilter: true,
     maxUploadMb: env.MAX_UPLOAD_MB,
+    imprint: "",
+    privacy: "",
   };
 }
 

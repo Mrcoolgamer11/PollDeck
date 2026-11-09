@@ -18,6 +18,8 @@ import {
   validateResponse,
   type Reaction,
   type SlideConfigMap,
+  AUTO_QUIZ_DELAY_MS,
+  isAvatar,
   type SlideLiveState,
 } from "@polldeck/shared";
 import { z } from "zod";
@@ -45,10 +47,12 @@ import {
   hostState,
   invalidateLeaderboard,
   leaderboard,
+  lobbyParticipants,
   myResponses,
   myScore,
   questionsFor,
 } from "./data.js";
+import { formatAnswer } from "../lib/report.js";
 import { clearPresence, forceOffline, markOffline, markOnline, onlineCount } from "./presence.js";
 
 type AckFn = (res: { ok: boolean; data?: unknown; error?: string }) => void;
@@ -58,6 +62,7 @@ interface ParticipantData {
   sessionId: string;
   participantId: string;
   name: string | null;
+  avatar: string | null;
   votes: number[];
   reactions: number[];
 }
@@ -82,6 +87,9 @@ const dirtyResults = new Map<string, Set<string>>(); // sessionId -> slideIds
 const dirtyQa = new Map<string, Set<string>>();
 const dirtyCount = new Set<string>();
 const dirtyLeaderboard = new Set<string>();
+const dirtyLobby = new Set<string>();
+/** Quizfolien mit neuen Antworten → prüfen, ob alle geantwortet haben (#5). */
+const dirtyQuizAnswers = new Map<string, Set<string>>();
 const BROADCAST_MS = 250; // max. 4 Updates pro Sekunde
 
 function markDirty(map: Map<string, Set<string>>, sid: string, slideId: string) {
@@ -100,7 +108,48 @@ async function flushWrites() {
   }
   for (const r of batch) {
     markDirty(dirtyResults, r.sessionId, r.slideId);
-    if (r.isCorrect !== null && r.isCorrect !== undefined) dirtyLeaderboard.add(r.sessionId);
+    if (r.isCorrect !== null && r.isCorrect !== undefined) {
+      dirtyLeaderboard.add(r.sessionId);
+      markDirty(dirtyQuizAnswers, r.sessionId, r.slideId);
+    }
+  }
+}
+
+/**
+ * Löst eine Quizfrage sofort auf, sobald alle verbundenen Teilnehmer
+ * geantwortet haben (Folien-Einstellung „revealWhenAllAnswered“, Standard an).
+ */
+async function checkAllAnswered() {
+  const pending = new Map(dirtyQuizAnswers);
+  dirtyQuizAnswers.clear();
+  for (const [sid, slideIds] of pending) {
+    const rt = await loadRuntime(sid);
+    if (!rt || rt.ended || rt.mode !== "PRESENTER") continue;
+    let changed = false;
+    for (const slideId of slideIds) {
+      const slide = rt.slides.find((s) => s.id === slideId);
+      if (!slide || !isQuiz(slide.type) || slide.settings.revealWhenAllAnswered === false) continue;
+      const st = slideState(rt, slideId);
+      if (st.revealed || !st.quizStartedAt) continue;
+      const online = Object.keys(await redis.hgetall(`pd:online:${sid}`));
+      if (!online.length) continue;
+      const answered = await prisma.response.findMany({
+        where: { sessionId: sid, slideId, participantId: { in: online } },
+        distinct: ["participantId"],
+        select: { participantId: true },
+      });
+      if (answered.length < online.length) continue;
+      setSlideState(rt, slideId, { revealed: true, timerEndsAt: null, timerDone: true, resultsVisible: true });
+      markDirty(dirtyResults, sid, slideId);
+      changed = true;
+    }
+    if (changed) {
+      await persistState(rt);
+      invalidateLeaderboard(sid);
+      dirtyLeaderboard.add(sid);
+      scheduleTimer(rt);
+      await broadcastState(rt);
+    }
   }
 }
 
@@ -149,6 +198,11 @@ async function flushBroadcasts() {
       io.to(roomAudience(sid)).emit("audience:leaderboard", lb.slice(0, (cur.config as { topN: number }).topN));
     }
   }
+  const lobbies = [...dirtyLobby];
+  dirtyLobby.clear();
+  for (const sid of lobbies) {
+    io.to(roomHost(sid)).emit("host:lobby", await lobbyParticipants(sid));
+  }
   for (const sid of counts) {
     io.to(roomHost(sid)).emit("host:count", await onlineCount(sid));
   }
@@ -160,6 +214,7 @@ setInterval(async () => {
   ticking = true;
   try {
     await flushWrites();
+    await checkAllAnswered();
     await flushBroadcasts();
   } catch (err) {
     logger.error({ err }, "Broadcast-Fehler");
@@ -222,6 +277,21 @@ function scheduleTimer(rt: Runtime) {
       }
     }, Math.max(0, next + TIMER_GRACE_MS - Date.now())),
   );
+}
+
+/**
+ * Quiz-Auto-Modus (#6): Ist die aktuelle Folie eine noch nicht gestartete
+ * Quizfrage, startet sie nach kurzer „Mach dich bereit“-Pause automatisch.
+ */
+function autoStartQuiz(rt: Runtime) {
+  if (!rt.state.autoQuiz || rt.state.lobby || rt.mode !== "PRESENTER") return;
+  const slide = currentSlide(rt);
+  if (!slide || !isQuiz(slide.type)) return;
+  const st = slideState(rt, slide.id);
+  if (st.quizStartedAt || st.revealed) return;
+  const start = Date.now() + AUTO_QUIZ_DELAY_MS;
+  const limit = (slide.config as SlideConfigMap["quiz_choice"]).timeLimit;
+  setSlideState(rt, slide.id, { quizStartedAt: start, timerEndsAt: start + limit * 1000, timerDone: false, revealed: false, locked: false });
 }
 
 /** Sendet den aktuellen Zustand an Präsentator/Beamer und alle Teilnehmer. */
@@ -299,6 +369,7 @@ async function onParticipant(socket: Socket, data: ParticipantData) {
   socket.join([roomAudience(sid), roomParticipant(pid)]);
   await markOnline(sid, pid);
   dirtyCount.add(sid);
+  dirtyLobby.add(sid);
 
   socket.on("disconnect", async () => {
     await markOffline(sid, pid).catch(() => undefined);
@@ -312,14 +383,39 @@ async function onParticipant(socket: Socket, data: ParticipantData) {
     ok(ack, { myResponses: await myResponses(rt, pid), myScore: await myScore(rt, pid) });
   });
 
-  handler(socket, "participant:name", async (p: { name?: string }, ack) => {
+  handler(socket, "participant:name", async (p: { name?: string; avatar?: string | null }, ack) => {
     const name = z.string().trim().min(1).max(40).parse(p?.name);
     const filter = await getWordFilter();
     if (containsFilteredWord(name, filter)) return fail(ack, "name_filtered");
-    await prisma.participant.update({ where: { id: pid }, data: { name } });
+    const avatar = isAvatar(p?.avatar) ? p.avatar : undefined;
+    await prisma.participant.update({ where: { id: pid }, data: { name, ...(avatar ? { avatar } : {}) } });
     data.name = name;
+    if (avatar) data.avatar = avatar;
     invalidateLeaderboard(sid);
-    ok(ack, { name });
+    dirtyLobby.add(sid);
+    ok(ack, { name, avatar: data.avatar });
+  });
+
+  // Eigene Ergebnisse am Ende der Sitzung (#4).
+  handler(socket, "audience:summary", async (_p, ack) => {
+    const rt = await loadRuntime(sid);
+    if (!rt) return fail(ack, "not_found");
+    const mine = await myResponses(rt, pid);
+    const items = rt.slides
+      .map((slide, i) => {
+        const rs = mine.filter((r) => r.slideId === slide.id);
+        if (!rs.length) return null;
+        return {
+          no: i + 1,
+          title: slide.title,
+          type: slide.type,
+          answers: rs.map((r) => formatAnswer(slide, r.value)),
+          isCorrect: rs.some((r) => r.isCorrect === true) ? true : rs.some((r) => r.isCorrect === false) ? false : null,
+          points: rs.reduce((s, r) => s + (r.points ?? 0), 0),
+        };
+      })
+      .filter(Boolean);
+    ok(ack, { title: rt.title, date: new Date().toISOString(), name: data.name, avatar: data.avatar, score: await myScore(rt, pid), items });
   });
 
   handler(socket, "survey:open", async (p: { slideId: string }, ack) => {
@@ -360,6 +456,7 @@ async function onParticipant(socket: Socket, data: ParticipantData) {
     const slide = rt.slides.find((s) => s.id === p?.slideId);
     if (!slide || !isInteractive(slide.type)) return fail(ack, "unknown_slide");
     if (rt.mode === "PRESENTER" && currentSlide(rt)?.id !== slide.id) return fail(ack, "not_current");
+    if (rt.mode === "PRESENTER" && rt.state.lobby) return fail(ack, "not_started");
     const st = slideState(rt, slide.id);
     const now = Date.now();
     if (rt.mode === "PRESENTER" && isClosed(st, now)) return fail(ack, "closed");
@@ -368,9 +465,9 @@ async function onParticipant(socket: Socket, data: ParticipantData) {
     if (isQuiz(slide.type)) {
       const cfg = slide.config as SlideConfigMap["quiz_choice"];
       if (rt.mode === "PRESENTER") {
-        if (!st.quizStartedAt) return fail(ack, "not_started");
+        if (!st.quizStartedAt || now < st.quizStartedAt) return fail(ack, "not_started");
         if (isRevealed(st, now)) return fail(ack, "closed");
-        elapsed = now - st.quizStartedAt;
+        elapsed = Math.max(0, now - st.quizStartedAt);
       } else {
         const started = Number(await redis.get(`pd:qs:${sid}:${slide.id}:${st.generation}:${pid}`)) || now;
         elapsed = now - started;
@@ -490,7 +587,8 @@ async function onParticipant(socket: Socket, data: ParticipantData) {
     ...(await audienceBroadcast(rt)),
     myResponses: await myResponses(rt, pid),
     myScore: await myScore(rt, pid),
-    participant: { id: pid, name: data.name },
+    participant: { id: pid, name: data.name, avatar: data.avatar },
+    lobby: rt.state.lobby,
     myQuestions: (await prisma.question.findMany({ where: { sessionId: sid, participantId: pid }, select: { id: true } })).map((q) => q.id),
     myUpvotes: (await prisma.questionUpvote.findMany({ where: { participantId: pid, question: { sessionId: sid } }, select: { questionId: true } })).map((u) => u.questionId),
   });
@@ -540,6 +638,8 @@ async function onHost(socket: Socket, data: HostData) {
     withRt(ack, async (rt) => {
       const index = z.number().int().min(0).max(rt.slides.length - 1).parse(p?.index);
       rt.state.currentIndex = index;
+      rt.state.lobby = false;
+      autoStartQuiz(rt);
       await commit(rt, ack);
     }),
   );
@@ -620,13 +720,14 @@ async function onHost(socket: Socket, data: HostData) {
     }),
   );
 
-  handler(socket, "presenter:settings", async (p: Partial<{ showJoinBanner: boolean; reactionsEnabled: boolean; qrFullscreen: boolean }>, ack) =>
+  handler(socket, "presenter:settings", async (p: Partial<{ showJoinBanner: boolean; reactionsEnabled: boolean; qrFullscreen: boolean; lobby: boolean; autoQuiz: boolean }>, ack) =>
     withRt(ack, async (rt) => {
       const body = z
-        .object({ showJoinBanner: z.boolean(), reactionsEnabled: z.boolean(), qrFullscreen: z.boolean() })
+        .object({ showJoinBanner: z.boolean(), reactionsEnabled: z.boolean(), qrFullscreen: z.boolean(), lobby: z.boolean(), autoQuiz: z.boolean() })
         .partial()
         .parse(p ?? {});
       Object.assign(rt.state, body);
+      autoStartQuiz(rt);
       await commit(rt, ack);
     }),
   );
@@ -704,6 +805,7 @@ async function onHost(socket: Socket, data: HostData) {
     io?.in(roomParticipant(pid)).disconnectSockets(true);
     await forceOffline(sid, pid);
     dirtyCount.add(sid);
+    dirtyLobby.add(sid);
     const rt = await loadRuntime(sid);
     for (const s of rt?.slides ?? []) {
       if (isInteractive(s.type)) markDirty(dirtyResults, sid, s.id);
@@ -725,6 +827,7 @@ const participantAuth = z.object({
   code: z.string().regex(/^\d{6}$/),
   deviceId: z.string().min(8).max(64),
   name: z.string().trim().max(40).optional().nullable(),
+  avatar: z.string().max(16).optional().nullable(),
 });
 const hostAuth = z.object({ role: z.enum(["host", "screen"]), sessionId: z.string().min(1).max(64) });
 
@@ -749,10 +852,11 @@ export function attachSocketServer(server: HttpServer) {
         if (!rt) return next(new Error("session_not_found"));
         const name = a.name?.trim() || null;
         if (name && containsFilteredWord(name, await getWordFilter())) return next(new Error("name_filtered"));
+        const avatar = isAvatar(a.avatar) ? a.avatar : null;
         const part = await prisma.participant.upsert({
           where: { sessionId_deviceId: { sessionId: rt.id, deviceId: a.deviceId } },
-          create: { sessionId: rt.id, deviceId: a.deviceId, name },
-          update: { lastSeenAt: new Date(), ...(name ? { name } : {}) },
+          create: { sessionId: rt.id, deviceId: a.deviceId, name, avatar },
+          update: { lastSeenAt: new Date(), ...(name ? { name } : {}), ...(avatar ? { avatar } : {}) },
         });
         if (part.kicked) return next(new Error("kicked"));
         if (rt.settings.requireNames && !part.name) return next(new Error("name_required"));
@@ -761,6 +865,7 @@ export function attachSocketServer(server: HttpServer) {
           sessionId: rt.id,
           participantId: part.id,
           name: part.name,
+          avatar: part.avatar,
           votes: [],
           reactions: [],
         } satisfies ParticipantData;

@@ -200,6 +200,7 @@ model Participant {
   session    LiveSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
   deviceId   String
   name       String?
+  avatar     String?
   kicked     Boolean     @default(false)
   createdAt  DateTime    @default(now())
   lastSeenAt DateTime    @default(now())
