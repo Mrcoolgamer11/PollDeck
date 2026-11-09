@@ -484,6 +484,9 @@ async function onHost(socket: Socket, data: HostData) {
   };
 
   const commit = async (rt: Runtime, ack: AckFn) => {
+    // Auflösungen/Resets beeinflussen das Leaderboard → neu berechnen und senden.
+    invalidateLeaderboard(rt.id);
+    dirtyLeaderboard.add(rt.id);
     await persistState(rt);
     scheduleTimer(rt);
     await broadcastState(rt);
@@ -524,7 +527,7 @@ async function onHost(socket: Socket, data: HostData) {
     }),
   );
   handler(socket, "presenter:lock", patchSlide((st) => ({ locked: !st.locked })));
-  handler(socket, "presenter:reveal", patchSlide(() => ({ revealed: true })));
+  handler(socket, "presenter:reveal", patchSlide((st) => ({ revealed: true, timerEndsAt: st.quizStartedAt ? null : st.timerEndsAt })));
 
   handler(socket, "presenter:startTimer", async (p: { slideId?: string; seconds?: number | null }, ack) =>
     withRt(ack, async (rt) => {

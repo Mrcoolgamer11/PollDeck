@@ -266,9 +266,12 @@ export function Histogram({
             <div className="rounded-t-[0.4cqw] transition-[height] duration-700" style={{ height: `${(b.count / top) * 85}%`, background: color, minHeight: 2 }} />
           </div>
         ))}
-        {markers.map((m) => (
+        {markers.map((m, i) => (
           <div key={m.label} className="pointer-events-none absolute bottom-0 top-0 border-l-[0.3cqw]" style={{ left: `${((m.value - min) / span) * 100}%`, borderColor: m.color }}>
-            <span className="pd-small absolute -top-[0.5cqh] left-[0.5cqw] whitespace-nowrap rounded px-[0.4cqw] font-bold" style={{ background: m.color, color: "#fff" }}>
+            <span
+              className="pd-small absolute left-[0.5cqw] whitespace-nowrap rounded px-[0.4cqw] font-bold"
+              style={{ background: m.color, color: "#fff", top: `${i * 4.5}cqh` }}
+            >
               {m.label}
             </span>
           </div>

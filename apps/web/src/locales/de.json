@@ -529,7 +529,16 @@
     "yourAnswer": "Deine Antwort",
     "yourName": "Dein Name",
     "yourQuestion": "Deine Frage",
-    "yourScore": "Deine Punkte: {{score}}"
+    "yourScore": "Deine Punkte: {{score}}",
+    "skipHint": "Du kannst Aussagen auch auslassen.",
+    "dragToSort": "„{{label}}“ verschieben",
+    "rankingHint": "Sortiere von wichtig (oben) nach unwichtig (unten) – ziehen oder Pfeile nutzen.",
+    "pointsLeft": "Noch {{count}} von {{total}} Punkten",
+    "minusPoints": "Weniger Punkte für {{label}}",
+    "plusPointsFor": "Mehr Punkte für {{label}}",
+    "pointsFor": "Punkte für {{label}}",
+    "yourGuess": "Deine Schätzung",
+    "range": "Zwischen {{min}} und {{max}}"
   },
   "liveErrors": {
     "rate_limited": "Zu schnell – bitte kurz warten.",
