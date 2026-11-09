@@ -1,0 +1,6 @@
+type;question;answer1;answer2;answer3;answer4;correct;time
+choice;Was ist 7 × 8?;54;56;58;64;2;20
+choice;Welche Zahlen sind Primzahlen?;2;4;7;9;1|3;30
+choice;Wie heißt die Hauptstadt von Spanien?;Barcelona;Madrid;Sevilla;Valencia;2;20
+text;Übersetze: „der Hund“;dog;the dog;;;;25
+text;Wie heißt der größte Planet unseres Sonnensystems?;Jupiter;;;;;30

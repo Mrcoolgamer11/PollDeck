@@ -1,0 +1,6 @@
+[
+  { "type": "choice", "question": "Was ist 7 × 8?", "answers": ["54", "56", "58", "64"], "correct": [2], "time": 20 },
+  { "type": "choice", "question": "Welche Zahlen sind Primzahlen?", "answers": ["2", "4", "7", "9"], "correct": [1, 3], "time": 30 },
+  { "type": "text", "question": "Übersetze: „der Hund“", "answers": ["dog", "the dog"], "time": 25, "typos": true },
+  { "type": "text", "question": "Wie heißt der größte Planet unseres Sonnensystems?", "answers": ["Jupiter"], "time": 30, "points": 1500 }
+]

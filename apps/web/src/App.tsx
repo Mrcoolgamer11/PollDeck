@@ -8,6 +8,7 @@ import { ForgotPage, LoginPage, RegisterPage, ResetPage } from "./pages/Auth";
 import { DashboardPage } from "./pages/Dashboard";
 import { AdminPage } from "./pages/Admin";
 import { ProfilePage } from "./pages/Profile";
+import { EditorPage } from "./pages/Editor";
 
 function RequireAuth({ children, admin }: { children: ReactNode; admin?: boolean }) {
   const { user, loading } = useApp();
@@ -46,6 +47,14 @@ export function App() {
           }
         />
       </Route>
+      <Route
+        path="/edit/:id"
+        element={
+          <RequireAuth>
+            <EditorPage />
+          </RequireAuth>
+        }
+      />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
