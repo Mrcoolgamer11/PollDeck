@@ -72,7 +72,7 @@ export function summaryRows(
     return (extra.questions ?? []).map((q) => [q.text, `${q.upvotes} ▲${q.answered ? " (beantwortet)" : ""}`]);
   }
   if (slide.type === "leaderboard") {
-    return (extra.leaderboard ?? []).slice(0, 50).map((e) => [`${e.rank}. ${e.name}`, e.score]);
+    return (extra.leaderboard ?? []).slice(0, 50).map((e) => [`${e.rank}. ${e.name || "Anonym"}`, e.score]);
   }
   if (!results) return [];
   switch (results.kind) {

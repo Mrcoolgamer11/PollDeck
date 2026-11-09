@@ -40,7 +40,7 @@ export function computeLeaderboard(
   const sorted = [...map.entries()]
     .map(([participantId, e]) => ({
       participantId,
-      name: names[participantId] || "Anonym",
+      name: names[participantId] || "",
       score: e.score,
       correct: e.correct,
       rank: 0,

@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Send, ThumbsUp } from "lucide-react";
-import { REACTIONS, REACTION_EMOJI, type Reaction, type Slide, type SlideConfigMap } from "@polldeck/shared";
+import { REACTIONS, REACTION_EMOJI, type QaQuestion, type Reaction, type Slide, type SlideConfigMap } from "@polldeck/shared";
 import type { useAudienceSession } from "../lib/live";
 import { Button, cx } from "../components/ui";
 
@@ -51,6 +51,15 @@ function Qa({ live, slide, closed }: { live: Live; slide: Slide; closed: boolean
   const [busy, setBusy] = useState(false);
   const [info, setInfo] = useState("");
   const questions = live.state?.questions ?? [];
+  const survey = live.state?.mode === "SURVEY";
+  const { emit, setState } = live;
+  // Survey-Modus: vorhandene Fragen beim Öffnen der Folie laden.
+  useEffect(() => {
+    if (!survey) return;
+    emit<QaQuestion[]>("audience:questions", { slideId: slide.id }).then((r) => {
+      if (r.ok && r.data) setState((s) => (s ? { ...s, questions: r.data } : s));
+    });
+  }, [survey, slide.id, emit, setState]);
   return (
     <div className="space-y-4">
       {!closed && (

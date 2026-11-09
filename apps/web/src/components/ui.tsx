@@ -319,12 +319,15 @@ export const useToast = () => useContext(ToastCtx);
 /** Übersetzt einen API-Fehlercode. */
 export function useErrorText() {
   const { t } = useTranslation();
-  return (err: unknown) => {
-    const code = (err as { code?: string })?.code ?? "unknown";
-    const key = `errors.${code}`;
-    const txt = t(key);
-    return txt === key ? t("errors.generic", { code }) : txt;
-  };
+  return useCallback(
+    (err: unknown) => {
+      const code = (err as { code?: string })?.code ?? "unknown";
+      const key = `errors.${code}`;
+      const txt = t(key);
+      return txt === key ? t("errors.generic", { code }) : txt;
+    },
+    [t],
+  );
 }
 
 export function EmptyState({ icon, title, children }: { icon?: ReactNode; title: ReactNode; children?: ReactNode }) {

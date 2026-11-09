@@ -95,20 +95,6 @@ export function EditorPage() {
   const pending = useRef<Record<string, Record<string, unknown>>>({});
   const timer = useRef<ReturnType<typeof setTimeout>>();
 
-  const load = useCallback(async () => {
-    const r = await get<{ presentation: PresentationData }>(`/api/presentations/${id}`);
-    setP(r.presentation);
-    setSelected((s) => s ?? r.presentation.slides[0]?.id ?? null);
-  }, [id]);
-
-  useEffect(() => {
-    load().catch((e) => {
-      toast(errText(e), "error");
-      navigate("/dashboard");
-    });
-    get<{ themes: ThemeItem[] }>("/api/themes").then((r) => setThemes(r.themes)).catch(() => undefined);
-  }, [load, navigate, toast, errText]);
-
   const flush = useCallback(async () => {
     const batch = pending.current;
     pending.current = {};
@@ -123,6 +109,34 @@ export function EditorPage() {
       toast(errText(e), "error");
     }
   }, [toast, errText]);
+
+  /** Lädt die Präsentation neu – vorher ausstehende Änderungen speichern, damit nichts verloren geht. */
+  const load = useCallback(async () => {
+    clearTimeout(timer.current);
+    await flush();
+    const r = await get<{ presentation: PresentationData }>(`/api/presentations/${id}`);
+    setP(r.presentation);
+    setSelected((s) => (s && r.presentation.slides.some((x) => x.id === s) ? s : r.presentation.slides[0]?.id ?? null));
+  }, [id, flush]);
+
+  useEffect(() => {
+    let cancelled = false;
+    get<{ presentation: PresentationData }>(`/api/presentations/${id}`)
+      .then((r) => {
+        if (cancelled) return;
+        setP(r.presentation);
+        setSelected(r.presentation.slides[0]?.id ?? null);
+      })
+      .catch((e) => {
+        if (cancelled) return;
+        toast(errText(e), "error");
+        navigate("/dashboard");
+      });
+    get<{ themes: ThemeItem[] }>("/api/themes").then((r) => !cancelled && setThemes(r.themes)).catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [id, navigate, toast, errText]);
 
   // Beim Verlassen ungespeicherte Änderungen sichern.
   useEffect(() => {

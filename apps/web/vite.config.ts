@@ -14,6 +14,9 @@ export default defineConfig({
     },
   },
   build: {
+    // Auch ältere Smartphones (iOS 12+, Android 7+ mit aktuellem WebView) unterstützen.
+    target: ["es2019", "chrome70", "safari12", "firefox68", "edge79"],
+    cssTarget: ["chrome70", "safari12"],
     outDir: "dist",
     sourcemap: false,
     chunkSizeWarningLimit: 1200,

@@ -306,6 +306,15 @@ async function onParticipant(socket: Socket, data: ParticipantData) {
     ok(ack, { startedAt: started, serverTime: Date.now() });
   });
 
+  handler(socket, "audience:questions", async (p: { slideId: string }, ack) => {
+    const rt = await loadRuntime(sid);
+    if (!rt) return fail(ack, "not_found");
+    const slide = rt.slides.find((s) => s.id === p?.slideId);
+    if (!slide || slide.type !== "qa") return ok(ack, []);
+    if (rt.mode === "PRESENTER" && currentSlide(rt)?.id !== slide.id) return ok(ack, []);
+    ok(ack, audienceQuestions(await questionsFor(rt, slide.id)));
+  });
+
   handler(socket, "audience:results", async (p: { slideId: string }, ack) => {
     const rt = await loadRuntime(sid);
     if (!rt) return fail(ack, "not_found");

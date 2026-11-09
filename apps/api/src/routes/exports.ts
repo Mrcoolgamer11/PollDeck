@@ -150,7 +150,7 @@ export async function exportRoutes(app: FastifyInstance) {
     if (d.lb.length) {
       const lbSheet = wb.addWorksheet("Leaderboard");
       lbSheet.addRow(["Rang", "Name", "Punkte", "Richtige Antworten"]).font = { bold: true };
-      d.lb.forEach((e) => lbSheet.addRow([e.rank, e.name, e.score, e.correct]));
+      d.lb.forEach((e) => lbSheet.addRow([e.rank, e.name || "Anonym", e.score, e.correct]));
       lbSheet.columns.forEach((c, i) => (c.width = [8, 30, 12, 20][i]));
     }
     const buf = Buffer.from(await wb.xlsx.writeBuffer());

@@ -1,19 +1,22 @@
 import { Navigate, Route, Routes, useLocation } from "react-router-dom";
-import type { ReactNode } from "react";
+import { Suspense, lazy, type ReactNode } from "react";
 import { useApp } from "./lib/app";
 import { Spinner } from "./components/ui";
-import { AppLayout } from "./components/Layout";
 import { HomePage } from "./pages/Home";
 import { ForgotPage, LoginPage, RegisterPage, ResetPage } from "./pages/Auth";
-import { DashboardPage } from "./pages/Dashboard";
-import { AdminPage } from "./pages/Admin";
-import { ProfilePage } from "./pages/Profile";
-import { EditorPage } from "./pages/Editor";
-import { PresentPage } from "./pages/Present";
-import { ScreenPage } from "./pages/Screen";
 import { ParticipantPage } from "./pages/Participant";
-import { ThemesPage } from "./pages/Themes";
-import { SessionListPage, SessionResultsPage } from "./pages/Sessions";
+
+// Große Seiten erst bei Bedarf laden, damit Teilnehmer nur wenig herunterladen.
+const AppLayout = lazy(() => import("./components/Layout").then((m) => ({ default: m.AppLayout })));
+const DashboardPage = lazy(() => import("./pages/Dashboard").then((m) => ({ default: m.DashboardPage })));
+const AdminPage = lazy(() => import("./pages/Admin").then((m) => ({ default: m.AdminPage })));
+const ProfilePage = lazy(() => import("./pages/Profile").then((m) => ({ default: m.ProfilePage })));
+const EditorPage = lazy(() => import("./pages/Editor").then((m) => ({ default: m.EditorPage })));
+const PresentPage = lazy(() => import("./pages/Present").then((m) => ({ default: m.PresentPage })));
+const ScreenPage = lazy(() => import("./pages/Screen").then((m) => ({ default: m.ScreenPage })));
+const ThemesPage = lazy(() => import("./pages/Themes").then((m) => ({ default: m.ThemesPage })));
+const SessionListPage = lazy(() => import("./pages/Sessions").then((m) => ({ default: m.SessionListPage })));
+const SessionResultsPage = lazy(() => import("./pages/Sessions").then((m) => ({ default: m.SessionResultsPage })));
 
 function RequireAuth({ children, admin }: { children: ReactNode; admin?: boolean }) {
   const { user, loading } = useApp();
@@ -28,6 +31,7 @@ export function App() {
   const { loading } = useApp();
   if (loading) return <Spinner className="min-h-screen" />;
   return (
+    <Suspense fallback={<Spinner className="min-h-screen" />}>
     <Routes>
       <Route path="/" element={<HomePage />} />
       <Route path="/login" element={<LoginPage />} />
@@ -82,5 +86,6 @@ export function App() {
       <Route path="/:code" element={<ParticipantPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
+    </Suspense>
   );
 }

@@ -489,7 +489,7 @@ function LeaderboardMobile({ entries, me, score }: { entries: { participantId: s
         {entries.map((e) => (
           <li key={e.participantId} className={cx("flex justify-between rounded-lg px-3 py-2 text-sm", e.participantId === me ? "bg-[color:var(--pd-accent)] font-bold text-white" : "bg-slate-50")}>
             <span>
-              {e.rank}. {e.name}
+              {e.rank}. {e.name || t("present.anonymousShort")}
             </span>
             <span className="tabular-nums">{e.score}</span>
           </li>
