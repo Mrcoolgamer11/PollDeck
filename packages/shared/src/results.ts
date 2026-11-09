@@ -126,7 +126,8 @@ export function computeWordCloud(responses: ResultResponse[], filter: string[] =
   }
   const words = [...groups.values()]
     .map((g) => {
-      const best = [...g.spellings.entries()].sort((a, b) => b[1] - a[1] || a[0].localeCompare(b[0]))[0][0];
+      // Häufigste Schreibweise; bei Gleichstand die zuerst eingesendete (stabile Sortierung).
+      const best = [...g.spellings.entries()].sort((a, b) => b[1] - a[1])[0][0];
       return { text: best, count: g.count };
     })
     .sort((a, b) => b.count - a.count || a.text.localeCompare(b.text));

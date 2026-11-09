@@ -26,8 +26,8 @@ function layout(words: { text: string; count: number }[], colors: string[]): Pla
   const max = list[0].count;
   const min = list[list.length - 1].count;
   const placed: (Placed & { w: number; h: number })[] = [];
-  const minSize = list.length > 40 ? 18 : 24;
-  const maxSize = list.length > 40 ? 80 : 110;
+  const minSize = list.length > 40 ? 18 : list.length > 12 ? 26 : 40;
+  const maxSize = list.length > 40 ? 80 : list.length > 12 ? 110 : 130;
   for (const w of list) {
     const t = max === min ? 1 : (w.count - min) / (max - min);
     const size = Math.round(minSize + Math.sqrt(t) * (maxSize - minSize));

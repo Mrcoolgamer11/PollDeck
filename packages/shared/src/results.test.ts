@@ -37,6 +37,11 @@ describe("Wortwolken-Normalisierung", () => {
     expect(res.voters).toBe(4);
   });
 
+  it("nimmt bei Gleichstand die zuerst eingesendete Schreibweise", () => {
+    const res = computeWordCloud([r("p1", { words: ["Sonne"] }), r("p2", { words: ["sonne"] }), r("p3", { words: ["SONNE"] })]);
+    expect(res.words).toEqual([{ text: "Sonne", count: 3 }]);
+  });
+
   it("zählt einen Begriff pro Teilnehmer-Antwort nur einmal", () => {
     const res = computeWordCloud([r("p1", { words: ["Sonne", "SONNE", "sonne"] })]);
     expect(res.words).toEqual([{ text: "Sonne", count: 1 }]);

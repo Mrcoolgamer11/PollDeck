@@ -9,6 +9,9 @@ import { DashboardPage } from "./pages/Dashboard";
 import { AdminPage } from "./pages/Admin";
 import { ProfilePage } from "./pages/Profile";
 import { EditorPage } from "./pages/Editor";
+import { PresentPage } from "./pages/Present";
+import { ScreenPage } from "./pages/Screen";
+import { ParticipantPage } from "./pages/Participant";
 
 function RequireAuth({ children, admin }: { children: ReactNode; admin?: boolean }) {
   const { user, loading } = useApp();
@@ -55,6 +58,23 @@ export function App() {
           </RequireAuth>
         }
       />
+      <Route
+        path="/present/:id"
+        element={
+          <RequireAuth>
+            <PresentPage />
+          </RequireAuth>
+        }
+      />
+      <Route
+        path="/screen/:id"
+        element={
+          <RequireAuth>
+            <ScreenPage />
+          </RequireAuth>
+        }
+      />
+      <Route path="/:code" element={<ParticipantPage />} />
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
