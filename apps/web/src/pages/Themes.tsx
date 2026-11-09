@@ -27,6 +27,7 @@ const sampleSlide: Slide = {
     timerSeconds: null,
     moderation: false,
     showResultsToAudience: true,
+    revealOnTimerEnd: true,
   },
   config: {
     options: [

@@ -560,6 +560,14 @@ function SlideSettingsForm({ slide, onChange }: { slide: Slide; onChange: (c: Pa
           {(slide.type === "open_ended" || slide.type === "qa") && (
             <Toggle checked={s.moderation} onChange={(v) => set({ moderation: v })} label={t("editor.moderation")} description={t("editor.moderationHint")} />
           )}
+          {(isQuiz || s.timerSeconds !== null) && (
+            <Toggle
+              checked={s.revealOnTimerEnd}
+              onChange={(v) => set({ revealOnTimerEnd: v })}
+              label={t("editor.revealOnTimerEnd")}
+              description={s.revealOnTimerEnd ? t("editor.revealOnTimerEndOn") : t("editor.revealOnTimerEndOff")}
+            />
+          )}
           {!isQuiz && (
             <Field label={t("editor.timer")} hint={t("editor.timerHint")}>
               {(id) => (

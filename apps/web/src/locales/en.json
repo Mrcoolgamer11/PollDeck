@@ -330,7 +330,10 @@
     "untitledSlide": "Untitled",
     "useThemeColor": "Use theme colour",
     "xLabel": "X axis",
-    "yLabel": "Y axis"
+    "yLabel": "Y axis",
+    "revealOnTimerEnd": "Reveal automatically when the countdown ends",
+    "revealOnTimerEndOn": "Results and the solution are shown as soon as time is up.",
+    "revealOnTimerEndOff": "Voting is only locked – you reveal manually with a click."
   },
   "present": {
     "answered": "answered",

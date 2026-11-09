@@ -330,7 +330,10 @@
     "untitledSlide": "Ohne Titel",
     "useThemeColor": "Theme-Farbe verwenden",
     "xLabel": "X-Achse",
-    "yLabel": "Y-Achse"
+    "yLabel": "Y-Achse",
+    "revealOnTimerEnd": "Bei Ablauf des Countdowns automatisch auflösen",
+    "revealOnTimerEndOn": "Ergebnisse und Lösung werden eingeblendet, sobald die Zeit abgelaufen ist.",
+    "revealOnTimerEndOff": "Die Abstimmung wird nur gesperrt – du löst per Klick selbst auf."
   },
   "present": {
     "answered": "beantwortet",

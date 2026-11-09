@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import QRCode from "qrcode";
 
 /** Lokal erzeugter QR-Code (keine externen Dienste). */
-export function QrCode({ value, size = 160, dark = "#000000", light = "#ffffff", label }: { value: string; size?: number; dark?: string; light?: string; label?: string }) {
+export function QrCode({ value, size = 160, dark = "#000000", light = "#ffffff", label }: { value: string; size?: number | string; dark?: string; light?: string; label?: string }) {
   const [svg, setSvg] = useState("");
   useEffect(() => {
     QRCode.toString(value, { type: "svg", margin: 1, color: { dark, light }, errorCorrectionLevel: "M" })

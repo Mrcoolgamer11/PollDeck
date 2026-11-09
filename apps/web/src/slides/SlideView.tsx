@@ -56,13 +56,14 @@ export function formatCode(code: string) {
 export function JoinBanner({ join, theme }: { join: JoinInfo; theme: ThemeConfig }) {
   const { t } = useTranslation();
   return (
-    <div className="pd-small flex items-center justify-center gap-[1.2cqw] px-[2cqw] py-[1cqh]" style={{ background: "var(--pd-surface)" }}>
+    <div className="pd-text flex items-center justify-center gap-[2.5cqw] px-[2cqw] py-[0.8cqh]" style={{ background: "var(--pd-surface)" }}>
       <span>
         {t("present.joinAt")} <strong>{join.domain}</strong> {t("present.withCode")}{" "}
-        <strong className="tabular-nums tracking-wider">{formatCode(join.code)}</strong>
+        <strong className="whitespace-nowrap text-[1.35em] tabular-nums tracking-wider">{formatCode(join.code)}</strong>
       </span>
-      <div className="rounded bg-white p-[0.2cqw]">
-        <QrCode value={join.url} size={36} dark="#000" light="#fff" label={t("present.qrLabel")} />
+      {/* Groß genug, um auch aus der Raummitte scannbar zu sein (skaliert mit der Folie). */}
+      <div className="h-[15cqh] w-[15cqh] shrink-0 rounded-[0.6cqw] bg-white p-[0.5cqw]">
+        <QrCode value={join.url} size="100%" dark="#000" light="#fff" label={t("present.qrLabel")} />
       </div>
       <span className="sr-only">{theme.mode}</span>
     </div>

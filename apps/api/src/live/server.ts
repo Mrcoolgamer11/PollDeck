@@ -173,26 +173,54 @@ setInterval(async () => {
 // ---------------------------------------------------------------------------
 const timers = new Map<string, NodeJS.Timeout>();
 
+/** Netzwerk-Toleranz nach Countdown-Ende, bevor aufgelöst wird (wie in isClosed). */
+const TIMER_GRACE_MS = 1600;
+
+/**
+ * Verarbeitet abgelaufene Countdowns: Abstimmung ist geschlossen; ist
+ * „Bei Ablauf automatisch auflösen“ aktiv (Standard), werden Ergebnisse und
+ * Lösung eingeblendet. Läuft auch nach einem Neustart für verpasste Timer.
+ */
+async function processExpiredTimers(rt: Runtime) {
+  if (rt.ended) return;
+  const now = Date.now();
+  const expired: string[] = [];
+  for (const slide of rt.slides) {
+    const st = rt.state.slides[slide.id];
+    if (!st?.timerEndsAt || st.timerDone || now < st.timerEndsAt + TIMER_GRACE_MS - 100) continue;
+    const autoReveal = slide.settings.revealOnTimerEnd !== false;
+    setSlideState(rt, slide.id, autoReveal ? { timerDone: true, revealed: true, resultsVisible: true } : { timerDone: true });
+    expired.push(slide.id);
+  }
+  if (!expired.length) return;
+  await persistState(rt);
+  invalidateLeaderboard(rt.id);
+  dirtyLeaderboard.add(rt.id);
+  for (const id of expired) markDirty(dirtyResults, rt.id, id);
+  await broadcastState(rt);
+}
+
 function scheduleTimer(rt: Runtime) {
   const old = timers.get(rt.id);
   if (old) clearTimeout(old);
-  const now = Date.now();
+  if (rt.ended) return;
   const next = Object.values(rt.state.slides)
-    .map((s) => s.timerEndsAt)
-    .filter((t): t is number => !!t && t > now)
+    .filter((s) => s.timerEndsAt && !s.timerDone)
+    .map((s) => s.timerEndsAt as number)
     .sort((a, b) => a - b)[0];
   if (!next) return;
   timers.set(
     rt.id,
     setTimeout(async () => {
-      const fresh = await loadRuntime(rt.id);
-      if (!fresh) return;
-      // Countdown abgelaufen: Ergebnisse (ggf. mit Lösung) an alle senden.
-      invalidateLeaderboard(rt.id);
-      dirtyLeaderboard.add(rt.id);
-      await broadcastState(fresh);
-      scheduleTimer(fresh);
-    }, next - now + 1600),
+      try {
+        const fresh = await loadRuntime(rt.id);
+        if (!fresh) return;
+        await processExpiredTimers(fresh);
+        scheduleTimer(fresh);
+      } catch (err) {
+        logger.error({ err }, "Countdown-Verarbeitung fehlgeschlagen");
+      }
+    }, Math.max(0, next + TIMER_GRACE_MS - Date.now())),
   );
 }
 
@@ -546,7 +574,7 @@ async function onHost(socket: Socket, data: HostData) {
         setSlideState(rt, slide.id, { timerEndsAt: null });
       } else {
         const secs = z.number().int().min(3).max(3600).parse(p?.seconds ?? slide.settings.timerSeconds ?? 30);
-        setSlideState(rt, slide.id, { timerEndsAt: Date.now() + secs * 1000, locked: false });
+        setSlideState(rt, slide.id, { timerEndsAt: Date.now() + secs * 1000, timerDone: false, locked: false });
       }
       await commit(rt, ack);
     }),
@@ -560,7 +588,7 @@ async function onHost(socket: Socket, data: HostData) {
       if (st.quizStartedAt) return fail(ack, "already_started");
       const limit = (slide.config as SlideConfigMap["quiz_choice"]).timeLimit;
       const now = Date.now();
-      setSlideState(rt, slide.id, { quizStartedAt: now, timerEndsAt: now + limit * 1000, revealed: false, locked: false });
+      setSlideState(rt, slide.id, { quizStartedAt: now, timerEndsAt: now + limit * 1000, timerDone: false, revealed: false, locked: false });
       await commit(rt, ack);
     }),
   );
@@ -582,6 +610,7 @@ async function onHost(socket: Socket, data: HostData) {
         quizStartedAt: null,
         revealed: false,
         generation: gen,
+        timerDone: false,
       };
       invalidateLeaderboard(sid);
       dirtyLeaderboard.add(sid);

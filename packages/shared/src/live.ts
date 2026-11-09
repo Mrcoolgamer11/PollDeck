@@ -16,6 +16,8 @@ export interface SlideLiveState {
   revealed: boolean;
   /** Wird beim Zurücksetzen der Folie erhöht */
   generation: number;
+  /** Ablauf des aktuellen Countdowns wurde vom Server verarbeitet */
+  timerDone: boolean;
 }
 
 export const defaultSlideLiveState = (): SlideLiveState => ({
@@ -25,12 +27,17 @@ export const defaultSlideLiveState = (): SlideLiveState => ({
   quizStartedAt: null,
   revealed: false,
   generation: 0,
+  timerDone: false,
 });
 
-/** Quiz gilt als aufgelöst, wenn manuell aufgelöst oder der Countdown abgelaufen ist. */
-export function isRevealed(st: SlideLiveState | null | undefined, now = Date.now()): boolean {
-  if (!st) return false;
-  return st.revealed || (st.quizStartedAt !== null && st.timerEndsAt !== null && now > st.timerEndsAt);
+/**
+ * Folie gilt als aufgelöst, wenn der Präsentator aufgelöst hat oder der Server
+ * beim Ablauf des Countdowns automatisch aufgelöst hat (Einstellung
+ * „revealOnTimerEnd“). `now` bleibt für Aufrufer-Kompatibilität erhalten.
+ */
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export function isRevealed(st: SlideLiveState | null | undefined, _now = Date.now()): boolean {
+  return !!st?.revealed;
 }
 
 /** Sind die Ergebnisse (für Beamer/Teilnehmer) freigegeben? */

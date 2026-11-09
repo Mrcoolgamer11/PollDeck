@@ -155,6 +155,8 @@ export const slideSettingsSchema = z.object({
   moderation: z.boolean().default(false),
   /** Ergebnisse auch auf den Teilnehmergeräten anzeigen */
   showResultsToAudience: z.boolean().default(true),
+  /** Bei Ablauf des Countdowns automatisch auflösen (Ergebnisse/Lösung einblenden) */
+  revealOnTimerEnd: z.boolean().default(true),
 });
 export type SlideSettings = z.infer<typeof slideSettingsSchema>;
 
