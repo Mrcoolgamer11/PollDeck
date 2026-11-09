@@ -19,7 +19,7 @@ RUN pnpm --filter @polldeck/shared build \
 
 # ---------- Runtime ----------
 FROM node:22-alpine AS runtime
-RUN apk add --no-cache openssl tini su-exec wget
+RUN apk add --no-cache openssl tini su-exec wget tzdata
 ENV NODE_ENV=production \
     PORT=3000 \
     UPLOAD_DIR=/data/uploads

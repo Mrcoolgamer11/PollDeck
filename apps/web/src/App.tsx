@@ -12,6 +12,8 @@ import { EditorPage } from "./pages/Editor";
 import { PresentPage } from "./pages/Present";
 import { ScreenPage } from "./pages/Screen";
 import { ParticipantPage } from "./pages/Participant";
+import { ThemesPage } from "./pages/Themes";
+import { SessionListPage, SessionResultsPage } from "./pages/Sessions";
 
 function RequireAuth({ children, admin }: { children: ReactNode; admin?: boolean }) {
   const { user, loading } = useApp();
@@ -41,6 +43,9 @@ export function App() {
       >
         <Route path="/dashboard" element={<DashboardPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/themes" element={<ThemesPage />} />
+        <Route path="/sessions/p/:id" element={<SessionListPage />} />
+        <Route path="/sessions/:id" element={<SessionResultsPage />} />
         <Route
           path="/admin"
           element={

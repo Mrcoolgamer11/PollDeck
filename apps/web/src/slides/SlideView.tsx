@@ -43,6 +43,8 @@ export interface SlideViewProps {
   className?: string;
   overlay?: ReactNode;
   autoLeaderboard?: boolean;
+  /** Archivansicht (abgeschlossene Sitzung) */
+  archived?: boolean;
 }
 
 const LETTERS = "ABCDEFGH";
@@ -237,6 +239,7 @@ export function SlideView({
   className,
   overlay,
   autoLeaderboard,
+  archived,
 }: SlideViewProps) {
   const { t } = useTranslation();
   const style = useMemo(() => themeStyle(theme, slide.background), [theme, slide.background]);
@@ -245,7 +248,7 @@ export function SlideView({
   const quizStarted = preview || !!slideState?.quizStartedAt;
   const showCount = isInteractive(slide.type) || slide.type === "qa";
   const imageSide = slide.imageUrl && slide.type !== "content";
-  const waiting = t("present.waiting");
+  const waiting = archived ? t("present.noResponses") : t("present.waiting");
 
   let body: ReactNode = null;
   switch (slide.type) {
@@ -568,6 +571,9 @@ export function SlideView({
           )}
         </div>
       </div>
+      {theme.logoUrl && (
+        <img src={theme.logoUrl} alt="" className="pointer-events-none absolute bottom-[2cqh] right-[2cqw] h-[7cqh] max-w-[14cqw] object-contain opacity-90" />
+      )}
       {overlay}
     </div>
   );

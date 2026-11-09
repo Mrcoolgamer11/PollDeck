@@ -416,7 +416,8 @@
     "toggleQr": "Großen QR-Code zeigen",
     "toggleReactions": "Reaktionen ein/aus",
     "viewResults": "Ergebnisse ansehen",
-    "visible": "Sichtbar"
+    "visible": "Sichtbar",
+    "noResponses": "Keine Antworten"
   },
   "slideTypes": {
     "multiple_choice": {
@@ -576,5 +577,45 @@
     "kicked": "Du wurdest entfernt.",
     "name_required": "Bitte gib einen Namen ein.",
     "queued": "Wird gesendet, sobald die Verbindung steht."
+  },
+  "themes": {
+    "title": "Themes",
+    "new": "Neues Theme",
+    "newName": "Mein Theme",
+    "edit": "Theme bearbeiten",
+    "builtin": "Mitgeliefert",
+    "copy": "Kopie",
+    "duplicate": "Als Vorlage nutzen",
+    "sampleQuestion": "Beispielfrage",
+    "mode": "Grundstil",
+    "dark": "Dunkel",
+    "light": "Hell",
+    "font": "Schrift",
+    "background": "Hintergrund",
+    "text": "Text",
+    "accent": "Akzent",
+    "chartColors": "Diagrammfarben",
+    "chartColorN": "Diagrammfarbe {{n}}",
+    "logo": "Logo",
+    "logoHint": "Wird unten rechts auf jeder Folie angezeigt."
+  },
+  "sessions": {
+    "title": "Sitzungen",
+    "newSession": "Neue Sitzung",
+    "empty": "Noch keine Sitzungen",
+    "emptyHint": "Starte die Präsentation, um eine Sitzung zu beginnen. Jede Sitzung wird mit ihren Ergebnissen archiviert.",
+    "started": "Gestartet",
+    "mode": "Modus",
+    "participants": "Teilnehmer",
+    "responses": "Antworten",
+    "status": "Status",
+    "active": "Läuft",
+    "ended": "Beendet",
+    "openPresenter": "Präsentator-Ansicht öffnen",
+    "deleteTitle": "Sitzung löschen",
+    "deleteConfirm": "Diese Sitzung mit allen Antworten endgültig löschen?",
+    "pdfReport": "PDF-Bericht",
+    "participantsCount_one": "{{count}} Teilnehmer",
+    "participantsCount_other": "{{count}} Teilnehmer"
   }
 }

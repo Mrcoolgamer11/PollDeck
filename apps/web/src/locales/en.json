@@ -416,7 +416,8 @@
     "toggleQr": "Show large QR code",
     "toggleReactions": "Toggle reactions",
     "viewResults": "View results",
-    "visible": "Visible"
+    "visible": "Visible",
+    "noResponses": "No responses"
   },
   "slideTypes": {
     "multiple_choice": {
@@ -576,5 +577,45 @@
     "kicked": "You have been removed.",
     "name_required": "Please enter a name.",
     "queued": "Will be sent once connected."
+  },
+  "themes": {
+    "title": "Themes",
+    "new": "New theme",
+    "newName": "My theme",
+    "edit": "Edit theme",
+    "builtin": "Built-in",
+    "copy": "copy",
+    "duplicate": "Use as template",
+    "sampleQuestion": "Sample question",
+    "mode": "Base style",
+    "dark": "Dark",
+    "light": "Light",
+    "font": "Font",
+    "background": "Background",
+    "text": "Text",
+    "accent": "Accent",
+    "chartColors": "Chart colours",
+    "chartColorN": "Chart colour {{n}}",
+    "logo": "Logo",
+    "logoHint": "Shown in the bottom-right corner of every slide."
+  },
+  "sessions": {
+    "title": "Sessions",
+    "newSession": "New session",
+    "empty": "No sessions yet",
+    "emptyHint": "Start presenting to begin a session. Every session is archived with its results.",
+    "started": "Started",
+    "mode": "Mode",
+    "participants": "Participants",
+    "responses": "Responses",
+    "status": "Status",
+    "active": "Live",
+    "ended": "Ended",
+    "openPresenter": "Open presenter view",
+    "deleteTitle": "Delete session",
+    "deleteConfirm": "Permanently delete this session and all of its responses?",
+    "pdfReport": "PDF report",
+    "participantsCount_one": "{{count}} participant",
+    "participantsCount_other": "{{count}} participants"
   }
 }
