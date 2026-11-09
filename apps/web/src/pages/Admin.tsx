@@ -456,6 +456,25 @@ function SettingsTab() {
             </Select>
           )}
         </Field>
+        <Field label={t("admin.retentionDays")} hint={t("admin.retentionHint")}>
+          {(id) => (
+            <Input id={id} type="number" min={0} max={3650} value={s.retentionDays} onChange={(e) => setS({ ...s, retentionDays: Math.max(0, Math.min(3650, Number(e.target.value) || 0)) })} />
+          )}
+        </Field>
+        <Button
+          variant="secondary"
+          size="sm"
+          onClick={async () => {
+            try {
+              const r = await post<{ report: Record<string, number> }>("/api/admin/retention/run");
+              toast(t("admin.retentionDone", r.report), "success");
+            } catch (e) {
+              toast(errText(e), "error");
+            }
+          }}
+        >
+          {t("admin.retentionRun")}
+        </Button>
         <Field label={t("admin.maxUpload")}>
           {(id) => (
             <Input id={id} type="number" min={1} max={100} value={s.maxUploadMb} onChange={(e) => setS({ ...s, maxUploadMb: Number(e.target.value) || 1 })} />

@@ -396,6 +396,28 @@ async function onParticipant(socket: Socket, data: ParticipantData) {
     ok(ack, { name, avatar: data.avatar });
   });
 
+  // Recht auf Löschung: eigene Antworten, Fragen und Upvotes entfernen, Name/Emoji anonymisieren.
+  handler(socket, "audience:forget", async (_p, ack) => {
+    await flushWrites();
+    await prisma.$transaction([
+      prisma.response.deleteMany({ where: { participantId: pid } }),
+      prisma.question.deleteMany({ where: { participantId: pid } }),
+      prisma.questionUpvote.deleteMany({ where: { participantId: pid } }),
+      prisma.participant.update({ where: { id: pid }, data: { name: null, avatar: null } }),
+    ]);
+    data.name = null;
+    data.avatar = null;
+    const rt = await loadRuntime(sid);
+    for (const s of rt?.slides ?? []) {
+      if (isInteractive(s.type)) markDirty(dirtyResults, sid, s.id);
+      if (s.type === "qa") markDirty(dirtyQa, sid, s.id);
+    }
+    invalidateLeaderboard(sid);
+    dirtyLeaderboard.add(sid);
+    dirtyLobby.add(sid);
+    ok(ack);
+  });
+
   // Eigene Ergebnisse am Ende der Sitzung (#4).
   handler(socket, "audience:summary", async (_p, ack) => {
     const rt = await loadRuntime(sid);

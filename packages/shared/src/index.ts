@@ -7,3 +7,4 @@ export * from "./api.js";
 export * from "./live.js";
 export * from "./templates.js";
 export * from "./import.js";
+export * from "./privacy.js";

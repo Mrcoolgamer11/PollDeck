@@ -158,13 +158,24 @@
     "useDefaultFilter": "Standard-Wortfilter verwenden",
     "wordFilter": "Wortfilter",
     "legal": "Impressum & Datenschutz",
-    "legalHint": "Wird öffentlich unter /impressum und /datenschutz angezeigt und auf Start-, Login- und Teilnehmerseiten verlinkt. Leer = kein Link."
+    "legalHint": "Wird öffentlich unter /impressum und /datenschutz angezeigt und auf Start-, Login- und Teilnehmerseiten verlinkt. Leer = kein Link.",
+    "retentionDays": "Sitzungsergebnisse automatisch löschen nach (Tagen)",
+    "retentionHint": "Beendete Sitzungen samt Antworten und Teilnehmern werden nach dieser Frist gelöscht (0 = nie). Muss zur Datenschutzerklärung passen.",
+    "retentionRun": "Bereinigung jetzt ausführen",
+    "retentionDone": "Bereinigt: {{deletedSessions}} Sitzungen, {{deletedUploads}} Bilder, {{deletedAuthSessions}} abgelaufene Logins"
   },
   "profile": {
     "title": "Profil",
     "changePassword": "Passwort ändern",
     "currentPassword": "Aktuelles Passwort",
-    "language": "Sprache"
+    "language": "Sprache",
+    "myData": "Meine Daten",
+    "myDataHint": "Du kannst alle zu deinem Konto gespeicherten Daten als Datei herunterladen oder dein Konto endgültig löschen.",
+    "exportData": "Daten exportieren (JSON)",
+    "deleteAccount": "Konto löschen",
+    "deleteForever": "Endgültig löschen",
+    "deleteWarning": "Dein Konto wird mit allen Präsentationen, Ordnern, Themes, Sitzungen und deren Ergebnissen endgültig gelöscht. Das kann nicht rückgängig gemacht werden.",
+    "deleteConfirmLabel": "Zur Bestätigung dein Passwort eingeben (bei SSO-Konten: deine E-Mail-Adresse)"
   },
   "errors": {
     "generic": "Es ist ein Fehler aufgetreten ({{code}}).",
@@ -196,7 +207,8 @@
     "unsupported_type": "Nur PNG, JPG, GIF und WebP werden unterstützt.",
     "file_too_large": "Die Datei ist zu groß.",
     "invalid_image": "Die Datei ist kein gültiges Bild.",
-    "internal_error": "Interner Serverfehler."
+    "internal_error": "Interner Serverfehler.",
+    "confirm_email": "Bitte zur Bestätigung deine E-Mail-Adresse eingeben."
   },
   "editor": {
     "addAnswer": "Antwort hinzufügen",
@@ -568,7 +580,11 @@
     "print": "Drucken / PDF",
     "summaryQuestion": "Frage",
     "summaryAnswer": "Deine Antwort",
-    "summaryPoints": "Punkte"
+    "summaryPoints": "Punkte",
+    "forgetMe": "Meine Antworten löschen",
+    "forgetHint": "Deine Antworten, Fragen, Punkte sowie dein Name und Emoji werden aus dieser Sitzung entfernt. Das kann nicht rückgängig gemacht werden.",
+    "forgotten": "Deine Antworten wurden gelöscht.",
+    "privacyNotice": "Für diese Sitzung werden dein Anzeigename, dein Emoji und deine Antworten gespeichert und je nach Folie auf dem Bildschirm gezeigt. Kein Tracking, keine Werbung."
   },
   "liveErrors": {
     "rate_limited": "Zu schnell – bitte kurz warten.",

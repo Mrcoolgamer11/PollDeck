@@ -8,6 +8,7 @@ import {
   resetSchema,
   type PublicConfig,
 } from "@polldeck/shared";
+import { z } from "zod";
 import { prisma } from "../lib/prisma.js";
 import { env } from "../env.js";
 import { badRequest, conflict, forbidden, parse, unauthorized } from "../lib/http.js";
@@ -149,6 +150,73 @@ export async function authRoutes(app: FastifyInstance) {
     }
     const updated = await prisma.user.update({ where: { id: user.id }, data });
     return { user: toPublicUser(updated) };
+  });
+
+  /** Datenauskunft/-übertragbarkeit (Art. 15, 20 DSGVO): alle eigenen Daten als JSON. */
+  app.get("/me/export", async (req, reply) => {
+    const user = requireUser(req);
+    const [presentations, folders, themes, logins, shares] = await Promise.all([
+      prisma.presentation.findMany({
+        where: { ownerId: user.id },
+        include: {
+          slides: { orderBy: { position: "asc" } },
+          sessions: {
+            select: {
+              id: true,
+              code: true,
+              status: true,
+              mode: true,
+              startedAt: true,
+              endedAt: true,
+              _count: { select: { participants: true, responses: true } },
+            },
+          },
+        },
+      }),
+      prisma.folder.findMany({ where: { ownerId: user.id } }),
+      prisma.theme.findMany({ where: { ownerId: user.id } }),
+      prisma.authSession.findMany({ where: { userId: user.id }, select: { createdAt: true, expiresAt: true, ip: true, userAgent: true } }),
+      prisma.presentationShare.findMany({ where: { userId: user.id }, select: { presentationId: true, role: true, createdAt: true } }),
+    ]);
+    const data = {
+      exportedAt: new Date().toISOString(),
+      account: {
+        id: user.id,
+        email: user.email,
+        name: user.name,
+        role: user.role,
+        locale: user.locale,
+        sso: !!user.oidcSub,
+        createdAt: user.createdAt,
+        lastLoginAt: user.lastLoginAt,
+      },
+      logins,
+      sharedWithMe: shares,
+      folders,
+      themes,
+      presentations,
+    };
+    return reply
+      .header("Content-Type", "application/json; charset=utf-8")
+      .header("Content-Disposition", 'attachment; filename="polldeck-meine-daten.json"')
+      .send(JSON.stringify(data, null, 2));
+  });
+
+  /** Konto mit allen Präsentationen, Sitzungen und Uploads-Verweisen löschen (Art. 17 DSGVO). */
+  app.delete("/me", { config: loginLimit }, async (req, reply) => {
+    const user = requireUser(req);
+    const body = parse(z.object({ password: z.string().max(200).optional(), confirm: z.string().max(100).optional() }), req.body ?? {});
+    if (user.passwordHash) {
+      if (!(await verifyPassword(user.passwordHash, body.password ?? ""))) throw badRequest("wrong_password");
+    } else if (body.confirm !== user.email) {
+      throw badRequest("confirm_email");
+    }
+    if (user.role === "ADMIN" && (await prisma.user.count({ where: { role: "ADMIN", disabled: false } })) <= 1) {
+      throw badRequest("last_admin");
+    }
+    await prisma.user.delete({ where: { id: user.id } });
+    reply.clearCookie("pd_session", { path: "/" });
+    return { ok: true };
   });
 
   app.post("/forgot", { config: loginLimit }, async (req) => {

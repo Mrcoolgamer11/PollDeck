@@ -65,6 +65,8 @@ export const instanceSettingsSchema = z.object({
   imprint: z.string().max(20000).default(""),
   /** Datenschutzerklärung (Freitext, wird auf /datenschutz angezeigt) */
   privacy: z.string().max(50000).default(""),
+  /** Sitzungsergebnisse (Antworten, Teilnehmer) nach so vielen Tagen automatisch löschen; 0 = nie */
+  retentionDays: z.number().int().min(0).max(3650).default(365),
 });
 export type InstanceSettings = z.infer<typeof instanceSettingsSchema>;
 

@@ -158,13 +158,24 @@
     "useDefaultFilter": "Use default word filter",
     "wordFilter": "Word filter",
     "legal": "Imprint & privacy",
-    "legalHint": "Shown publicly at /impressum and /datenschutz and linked on the start, login and participant pages. Empty = no link."
+    "legalHint": "Shown publicly at /impressum and /datenschutz and linked on the start, login and participant pages. Empty = no link.",
+    "retentionDays": "Delete session results automatically after (days)",
+    "retentionHint": "Ended sessions including responses and participants are deleted after this period (0 = never). Must match your privacy policy.",
+    "retentionRun": "Run clean-up now",
+    "retentionDone": "Cleaned up: {{deletedSessions}} sessions, {{deletedUploads}} images, {{deletedAuthSessions}} expired logins"
   },
   "profile": {
     "title": "Profile",
     "changePassword": "Change password",
     "currentPassword": "Current password",
-    "language": "Language"
+    "language": "Language",
+    "myData": "My data",
+    "myDataHint": "Download all data stored for your account, or delete your account permanently.",
+    "exportData": "Export data (JSON)",
+    "deleteAccount": "Delete account",
+    "deleteForever": "Delete permanently",
+    "deleteWarning": "Your account will be deleted permanently along with all presentations, folders, themes, sessions and their results. This cannot be undone.",
+    "deleteConfirmLabel": "Enter your password to confirm (SSO accounts: your email address)"
   },
   "errors": {
     "generic": "Something went wrong ({{code}}).",
@@ -196,7 +207,8 @@
     "unsupported_type": "Only PNG, JPG, GIF and WebP are supported.",
     "file_too_large": "The file is too large.",
     "invalid_image": "The file is not a valid image.",
-    "internal_error": "Internal server error."
+    "internal_error": "Internal server error.",
+    "confirm_email": "Please enter your email address to confirm."
   },
   "editor": {
     "addAnswer": "Add answer",
@@ -568,7 +580,11 @@
     "print": "Print / PDF",
     "summaryQuestion": "Question",
     "summaryAnswer": "Your answer",
-    "summaryPoints": "Points"
+    "summaryPoints": "Points",
+    "forgetMe": "Delete my answers",
+    "forgetHint": "Your answers, questions, points as well as your name and emoji will be removed from this session. This cannot be undone.",
+    "forgotten": "Your answers have been deleted.",
+    "privacyNotice": "For this session your display name, emoji and answers are stored and may be shown on screen. No tracking, no ads."
   },
   "liveErrors": {
     "rate_limited": "Too fast – please wait a moment.",

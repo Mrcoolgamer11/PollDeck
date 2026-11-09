@@ -1,14 +1,15 @@
 Datenschutzerklärung
 
-Stand: [Monat Jahr]
+Stand: November 2026
 
 1. Verantwortlicher
 
 Verantwortlich für die Datenverarbeitung auf dieser Website im Sinne der Datenschutz-Grundverordnung (DSGVO) ist:
 
-[Vor- und Nachname]
-[Straße Hausnummer]
-[PLZ Ort]
+Finn Nebendahl
+Otfried-Preußler-Weg 34
+21423 Winsen (Luhe)
+Deutschland
 E-Mail: [E-Mail-Adresse]
 
 Ein Datenschutzbeauftragter ist nicht bestellt, da hierzu keine gesetzliche Pflicht besteht.
@@ -16,52 +17,59 @@ Ein Datenschutzbeauftragter ist nicht bestellt, da hierzu keine gesetzliche Pfli
 
 2. Überblick
 
-Diese Website betreibt PollDeck, eine Plattform für interaktive Präsentationen, Umfragen und Quiz-Runden. PollDeck wird selbst auf einem eigenen Server betrieben ([Standort des Servers, z. B. „bei Hetzner Online GmbH in Deutschland“ oder „auf eigener Hardware in Deutschland“]).
+Diese Website betreibt PollDeck, eine Plattform für interaktive Präsentationen, Umfragen und Quiz-Runden. PollDeck läuft auf einem eigenen virtuellen Server, der bei der Contabo GmbH in einem Rechenzentrum in Deutschland gemietet ist (siehe Abschnitt 9).
 
 Grundsätze:
-- Es werden keine Analyse- oder Tracking-Dienste eingesetzt.
+- Es werden keine Analyse-, Tracking- oder Werbedienste eingesetzt.
 - Es werden keine externen Dienste, Schriftarten oder Content-Delivery-Networks eingebunden. Alle Dateien werden direkt von diesem Server geladen.
-- Es werden keine Daten verkauft oder zu Werbezwecken genutzt.
+- Es werden keine Daten verkauft oder an Dritte zu eigenen Zwecken weitergegeben.
 - Teilnehmende benötigen kein Benutzerkonto und können anonym mitmachen.
+- Daten werden automatisch gelöscht, sobald sie nicht mehr benötigt werden (siehe die Speicherdauern unten).
 
 
-3. Aufruf der Website (Server-Logdateien)
+3. Aufruf der Website, Server-Protokolle
 
-Beim Aufruf der Website verarbeitet der Server technisch notwendige Daten: IP-Adresse, Datum und Uhrzeit, aufgerufene Adresse, Browser-Kennung (User-Agent) sowie Statuscode der Anfrage. Diese Daten werden in Protokolldateien gespeichert, um den Betrieb sicherzustellen, Fehler zu analysieren und Missbrauch (z. B. Angriffe) abzuwehren.
+Damit die Website ausgeliefert werden kann, verarbeitet der Server bei jedem Aufruf technisch notwendige Daten: IP-Adresse, Datum und Uhrzeit, aufgerufene Adresse, Statuscode und Antwortzeit.
 
-Außerdem wird die IP-Adresse kurzzeitig (in der Regel 1 Minute) für eine Begrenzung der Anfragen pro Zeit (Rate-Limiting) verwendet, etwa bei Anmeldeversuchen.
+- In den Protokolldateien der Anwendung wird die IP-Adresse nur gekürzt gespeichert (bei IPv4 wird das letzte Zahlenfeld entfernt, bei IPv6 wird nur das Netzpräfix gespeichert). Ein Rückschluss auf einzelne Personen ist damit nicht ohne Weiteres möglich.
+- Zum Schutz vor Missbrauch (z. B. massenhafte Anmeldeversuche) wird die vollständige IP-Adresse für höchstens 1 Minute im Arbeitsspeicher gehalten, um die Zahl der Anfragen pro Zeit zu begrenzen.
+- Die vorgeschalteten Webserver (Caddy und Nginx) schreiben keine Zugriffsprotokolle.
 
+Zweck: Auslieferung der Website, Fehleranalyse, Abwehr von Angriffen.
 Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einem sicheren und stabilen Betrieb).
-Speicherdauer: Die Protokolldateien der Anwendung sind in ihrer Größe begrenzt und werden fortlaufend überschrieben; sie werden in der Regel nach wenigen Tagen, spätestens nach [14] Tagen gelöscht, sofern sie nicht zur Aufklärung eines konkreten Sicherheitsvorfalls benötigt werden. [Falls dein Reverse-Proxy (Caddy) Zugriffsprotokolle schreibt, gilt für diese: … Tage.]
+Speicherdauer: Die Protokolldateien enthalten nur gekürzte IP-Adressen, sind in ihrer Größe begrenzt und werden fortlaufend überschrieben.
 
 
 4. Teilnahme an Präsentationen, Umfragen und Quiz (ohne Konto)
 
 Wenn du per Code, Link oder QR-Code an einer Sitzung teilnimmst, werden verarbeitet:
 - eine zufällig erzeugte, anonyme Geräte-ID (siehe Abschnitt 6), um Doppelabstimmungen zu verhindern und dich nach einem Verbindungsabbruch wiederzuerkennen,
-- der von dir frei gewählte Anzeigename (optional, sofern der Präsentator keinen Namen verlangt) und das gewählte Emoji,
+- der von dir frei gewählte Anzeigename (freiwillig, sofern die Präsentation keinen Namen verlangt) und das gewählte Emoji,
 - deine Antworten, Fragen (Q&A), Upvotes und Reaktionen sowie bei Quizfragen die Antwortzeit, die Bewertung (richtig/falsch) und die erreichten Punkte,
-- technische Verbindungsdaten (IP-Adresse) wie in Abschnitt 3 beschrieben.
+- der Zeitpunkt deines Beitritts und deiner letzten Verbindung.
 
-Bitte verwende als Anzeigenamen keinen vollständigen Klarnamen, wenn das nicht nötig ist – ein Vorname oder Spitzname genügt. Gib in offenen Antworten und Fragen keine sensiblen Daten über dich oder andere ein.
+Bitte verwende als Anzeigenamen keinen vollständigen Namen, wenn das nicht nötig ist – ein Vorname oder Spitzname genügt. Gib in offenen Antworten und Fragen keine sensiblen Daten über dich oder andere ein.
 
-Wer sieht was? Antworten werden – je nach Einstellung der Präsentation – zusammengefasst auf dem Beamer und den Geräten der Teilnehmenden angezeigt. Anzeigenamen und Emojis erscheinen in der Lobby und im Quiz-Leaderboard. Die Präsentatorin bzw. der Präsentator sieht die Antworten mit Anzeigenamen, kann Beiträge moderieren und die Ergebnisse als Datei (CSV, XLSX, PDF) exportieren.
+Wer sieht was? Antworten werden – je nach Einstellung der Präsentation – zusammengefasst auf dem Beamer und auf den Geräten der Teilnehmenden angezeigt; Texte aus offenen Fragen und Q&A können dort einzeln erscheinen. Anzeigenamen und Emojis erscheinen in der Lobby und im Quiz-Leaderboard. Die Präsentatorin bzw. der Präsentator sieht die Antworten zusammen mit dem Anzeigenamen, kann Beiträge moderieren und die Ergebnisse als Datei (CSV, XLSX, PDF) exportieren. Für solche Exporte ist die Präsentatorin bzw. der Präsentator selbst verantwortlich.
 
-Zweck: Durchführung der interaktiven Präsentation, Umfrage oder des Quiz.
-Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Durchführung interaktiver Unterrichts- und Präsentationsformate); soweit die Teilnahme im Rahmen eines Unterrichts- oder Nachhilfeverhältnisses erfolgt, zusätzlich Art. 6 Abs. 1 lit. b DSGVO.
-Speicherdauer: Die Ergebnisse einer Sitzung werden archiviert, damit die Präsentatorin bzw. der Präsentator sie später auswerten kann, und gelöscht, wenn die Sitzung oder die Präsentation gelöscht wird, spätestens jedoch nach [12] Monaten. Wird eine teilnehmende Person aus einer Sitzung entfernt, werden ihre Beiträge sofort gelöscht.
+Zweck: Durchführung der interaktiven Präsentation, Umfrage oder des Quiz und spätere Auswertung durch die Präsentatorin bzw. den Präsentator.
+Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an der Durchführung und Auswertung interaktiver Unterrichts- und Präsentationsformate). Erfolgt die Teilnahme im Rahmen eines Unterrichts- oder Nachhilfeverhältnisses, zusätzlich Art. 6 Abs. 1 lit. b DSGVO.
+Speicherdauer: Laufende Sitzungen werden automatisch beendet, wenn 24 Stunden lang niemand mehr verbunden war. Beendete Sitzungen werden samt allen Antworten und Teilnehmerdaten automatisch 365 Tage nach ihrem Start gelöscht – früher, wenn die Präsentatorin bzw. der Präsentator die Sitzung oder die Präsentation löscht. Wird eine teilnehmende Person aus einer Sitzung entfernt, werden ihre Beiträge sofort gelöscht.
+
+Selbst löschen: Am Ende einer Sitzung kannst du über „Meine Antworten löschen“ alle deine Antworten, Fragen und Punkte sowie deinen Namen und dein Emoji aus der Sitzung entfernen.
 
 „Ergebnisse speichern“: Am Ende einer Sitzung kannst du deine eigenen Antworten als Datei herunterladen. Die Datei wird in deinem Browser erzeugt und nur auf deinem Gerät gespeichert.
 
 
 5. Benutzerkonten für Präsentatorinnen und Präsentatoren
 
-Für das Erstellen und Präsentieren ist ein Konto nötig. Dabei werden verarbeitet: Name, E-Mail-Adresse, Passwort (nur als sicherer, nicht umkehrbarer Hash mit argon2), Rolle, Spracheinstellung, Zeitpunkt der letzten Anmeldung sowie zu jeder Anmeldesitzung IP-Adresse und Browser-Kennung. Außerdem werden die erstellten Präsentationen, Ordner, Themes, hochgeladenen Bilder und Freigaben an andere Präsentatoren gespeichert.
+Zum Erstellen und Präsentieren ist ein Konto nötig. Dabei werden verarbeitet: Name, E-Mail-Adresse, Passwort (ausschließlich als sicherer, nicht umkehrbarer Hash mit dem Verfahren argon2id), Rolle, Spracheinstellung, Zeitpunkt der Registrierung und der letzten Anmeldung sowie zu jeder Anmeldesitzung IP-Adresse, Browser-Kennung und Zeitpunkt. Außerdem werden die erstellten Präsentationen, Ordner, Themes, hochgeladenen Bilder und Freigaben an andere Präsentatoren gespeichert.
 
-Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Bereitstellung des Kontos und der Funktionen); für IP-Adresse und Browser-Kennung der Anmeldesitzungen Art. 6 Abs. 1 lit. f DSGVO (Sicherheit des Kontos).
-Speicherdauer: Anmeldesitzungen verfallen nach 30 Tagen. Kontodaten und Inhalte werden gespeichert, bis das Konto gelöscht wird. Die Löschung kannst du jederzeit per E-Mail an die oben genannte Adresse verlangen.
+Zweck: Bereitstellung des Kontos und seiner Funktionen, Schutz des Kontos vor Missbrauch.
+Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO (Nutzungsverhältnis); für IP-Adresse und Browser-Kennung der Anmeldesitzungen Art. 6 Abs. 1 lit. f DSGVO (Sicherheit des Kontos).
+Speicherdauer: Anmeldesitzungen verfallen nach 30 Tagen und werden danach automatisch gelöscht. Kontodaten und Inhalte werden gespeichert, bis das Konto gelöscht wird.
 
-Einmalige Anmeldung (SSO): [Nur falls aktiviert, sonst Absatz löschen:] Optional ist eine Anmeldung über [Name des Dienstes, z. B. „unseren eigenen Authentik-Server unter auth.nebendahl.eu“] möglich. Dabei werden Name, E-Mail-Adresse, eine Kennung des Kontos und ggf. Gruppenzugehörigkeiten an PollDeck übermittelt.
+Selbst exportieren und löschen: Im Profil kannst du jederzeit alle zu deinem Konto gespeicherten Daten als Datei herunterladen („Daten exportieren“) und dein Konto mit allen Inhalten endgültig löschen („Konto löschen“).
 
 
 6. Cookies und lokale Speicherung im Browser
@@ -71,60 +79,74 @@ PollDeck verwendet ausschließlich technisch notwendige Cookies und Browser-Spei
 Cookies:
 - pd_device: anonyme, zufällige Geräte-ID gegen Doppelabstimmungen und für die Wiedererkennung nach Verbindungsabbrüchen (Speicherdauer: 1 Jahr)
 - pd_session: Anmeldung von Präsentatorinnen und Präsentatoren (30 Tage)
-- pd_csrf: Schutz vor gefälschten Anfragen (Cross-Site-Request-Forgery), Sitzungsende des Browsers
-- pd_oidc: nur bei SSO-Anmeldung, Schutz des Anmeldevorgangs (10 Minuten)
+- pd_csrf: Schutz vor gefälschten Anfragen (Cross-Site-Request-Forgery), bis zum Schließen des Browsers
 
 Lokaler Speicher (localStorage) auf deinem Gerät:
-- Geräte-ID, zuletzt verwendeter Anzeigename und Emoji (damit du sie nicht erneut eingeben musst)
-- Merker, ob du einer Sitzung bereits beigetreten bist
-- vorübergehend zwischengespeicherte Antworten, falls die Verbindung kurz abbricht (werden nach dem Senden gelöscht)
-- Sprache und helles/dunkles Design
+- Geräte-ID, zuletzt verwendeter Anzeigename und Emoji (damit du sie nicht erneut eingeben musst),
+- ein Merker, ob du einer Sitzung bereits beigetreten bist,
+- vorübergehend zwischengespeicherte Antworten, falls die Verbindung kurz abbricht (werden nach dem Senden gelöscht),
+- Sprache sowie helles oder dunkles Design.
 
-Rechtsgrundlage: § 25 Abs. 2 Nr. 2 TDDDG (unbedingt erforderlich für den von dir gewünschten Dienst) sowie Art. 6 Abs. 1 lit. f DSGVO. Du kannst Cookies und lokale Daten jederzeit in deinem Browser löschen; danach wirst du als neues Gerät erkannt.
+Rechtsgrundlage: § 25 Abs. 2 Nr. 2 TDDDG (unbedingt erforderlich, um den von dir ausdrücklich gewünschten Dienst bereitzustellen) sowie Art. 6 Abs. 1 lit. f DSGVO. Du kannst Cookies und lokale Daten jederzeit in deinem Browser löschen; danach wirst du als neues Gerät erkannt.
 
 
 7. E-Mails
 
-Für das Zurücksetzen von Passwörtern und für Einladungen werden E-Mails über einen eigenen Mailserver ([mail.nebendahl.eu]) versendet. Verarbeitet werden dabei die E-Mail-Adresse und der Inhalt der Nachricht.
+Für das Zurücksetzen von Passwörtern und für Einladungen neuer Präsentatorinnen und Präsentatoren werden E-Mails über meinen eigenen Mailserver (mail.nebendahl.eu) versendet. Verarbeitet werden dabei die E-Mail-Adresse, der Name und der Inhalt der Nachricht.
 Rechtsgrundlage: Art. 6 Abs. 1 lit. b DSGVO.
-Links zum Zurücksetzen des Passworts sind 1 Stunde gültig, Einladungslinks 7 Tage.
+Speicherdauer: Links zum Zurücksetzen des Passworts sind 1 Stunde gültig, Einladungslinks 7 Tage; abgelaufene oder benutzte Links werden automatisch gelöscht.
 
 
 8. Hochgeladene Bilder
 
-Präsentatorinnen und Präsentatoren können Bilder für Folien hochladen. Diese werden auf dem Server gespeichert und sind für alle sichtbar, die die jeweilige Präsentation sehen. Bitte lade keine Bilder hoch, auf denen Personen ohne deren Einwilligung erkennbar sind.
+Präsentatorinnen und Präsentatoren können Bilder für Folien, Themes und das Logo hochladen. Diese werden auf dem Server gespeichert und sind für alle sichtbar, die die jeweilige Präsentation sehen. Bilder, die von keiner Präsentation, Sitzung oder Einstellung mehr verwendet werden, werden automatisch gelöscht. Bitte lade keine Bilder hoch, auf denen Personen ohne deren Einwilligung erkennbar sind.
 
 
-9. Empfänger und Übermittlung in Drittländer
+9. Hosting und Auftragsverarbeitung
 
-Daten werden nicht an Dritte weitergegeben, außer an [den Hosting-Anbieter des Servers, z. B. „Hetzner Online GmbH“] als Auftragsverarbeiter, soweit dieser technisch Zugriff auf den Server hat. Eine Übermittlung in Länder außerhalb der EU bzw. des EWR findet nicht statt.
+Der Server wird bei der Contabo GmbH, Aschauer Straße 32a, 81549 München, Deutschland, betrieben. Contabo stellt die Server-Infrastruktur in einem Rechenzentrum in Deutschland bereit und kann technisch auf die dort gespeicherten Daten zugreifen. Mit Contabo besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.
+Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer zuverlässigen Bereitstellung der Website).
+
+Darüber hinaus werden keine Daten an Dritte übermittelt, es sei denn, ich bin gesetzlich dazu verpflichtet. Eine Übermittlung in Länder außerhalb der Europäischen Union bzw. des Europäischen Wirtschaftsraums findet nicht statt.
 
 
 10. Kinder und Jugendliche
 
-PollDeck wird auch im Unterricht und in der Nachhilfe mit Kindern und Jugendlichen eingesetzt. Die Teilnahme ist ohne Konto und ohne Angabe eines echten Namens möglich. Lehrkräfte bzw. Nachhilfelehrkräfte, die PollDeck einsetzen, sind dafür verantwortlich, die Teilnehmenden altersgerecht zu informieren und – soweit erforderlich – die Zustimmung der Erziehungsberechtigten einzuholen.
+PollDeck wird auch im Unterricht und in der Nachhilfe mit Kindern und Jugendlichen eingesetzt. Die Teilnahme ist ohne Konto, ohne E-Mail-Adresse und ohne echten Namen möglich. Lehr- und Nachhilfekräfte, die PollDeck einsetzen, informieren die Teilnehmenden altersgerecht und holen – soweit erforderlich – die Zustimmung der Erziehungsberechtigten ein. Benutzerkonten sind nur für Präsentatorinnen und Präsentatoren vorgesehen.
 
 
-11. Deine Rechte
+11. Datensicherheit
+
+Die Verbindung zur Website ist per HTTPS verschlüsselt. Passwörter werden ausschließlich als Hash gespeichert, Anmelde-Cookies sind vor dem Zugriff durch Skripte geschützt, und hochgeladene Dateien werden auf erlaubte Bildformate geprüft. Die Datenbank ist nicht aus dem Internet erreichbar. Datensicherungen werden täglich erstellt und nach 30 Tagen gelöscht; Daten, die im Betrieb gelöscht wurden, sind daher spätestens nach 30 Tagen auch aus den Sicherungen entfernt.
+
+
+12. Deine Rechte
 
 Du hast das Recht auf
-- Auskunft über die gespeicherten Daten (Art. 15 DSGVO),
+- Auskunft über die zu dir gespeicherten Daten (Art. 15 DSGVO),
 - Berichtigung unrichtiger Daten (Art. 16 DSGVO),
 - Löschung (Art. 17 DSGVO),
 - Einschränkung der Verarbeitung (Art. 18 DSGVO),
 - Datenübertragbarkeit (Art. 20 DSGVO),
-- Widerspruch gegen Verarbeitungen auf Grundlage von Art. 6 Abs. 1 lit. f DSGVO (Art. 21 DSGVO).
+- Widerspruch gegen Verarbeitungen, die auf Art. 6 Abs. 1 lit. f DSGVO beruhen, aus Gründen, die sich aus deiner besonderen Situation ergeben (Art. 21 DSGVO).
 
-Da Teilnehmende anonym über eine zufällige Geräte-ID erfasst werden, kann ich Antworten einer Person nur zuordnen, wenn du mir den Beitrittscode der Sitzung und deinen Anzeigenamen nennst. Wende dich dafür an die oben genannte E-Mail-Adresse.
+Vieles kannst du direkt selbst erledigen: Teilnehmende löschen ihre Antworten am Ende einer Sitzung über „Meine Antworten löschen“; Präsentatorinnen und Präsentatoren exportieren oder löschen ihre Daten im Profil. Für alle anderen Anliegen genügt eine E-Mail an die oben genannte Adresse. Da Teilnehmende nur über eine zufällige Geräte-ID erfasst werden, kann ich Antworten einer Person nur zuordnen, wenn du mir den Beitrittscode der Sitzung, den ungefähren Zeitpunkt und deinen Anzeigenamen nennst.
 
-Du hast außerdem das Recht, dich bei einer Datenschutz-Aufsichtsbehörde zu beschweren, insbesondere bei der für deinen Wohnort oder für mich zuständigen Behörde: [Name und Anschrift der Landesdatenschutzbehörde deines Bundeslandes, z. B. „Unabhängiges Landeszentrum für Datenschutz Schleswig-Holstein (ULD), Holstenstraße 98, 24103 Kiel“].
+Beschwerderecht: Du kannst dich bei einer Datenschutz-Aufsichtsbehörde beschweren. Für mich zuständig ist:
+
+Der Landesbeauftragte für den Datenschutz Niedersachsen
+Prinzenstraße 5
+30159 Hannover
+https://www.lfd.niedersachsen.de
 
 
-12. Datensicherheit
+13. Pflicht zur Bereitstellung
 
-Die Verbindung zur Website ist per HTTPS verschlüsselt. Passwörter werden ausschließlich als Hash gespeichert, Anmelde-Cookies sind vor dem Zugriff durch Skripte geschützt, und Uploads werden auf erlaubte Bildformate geprüft. Datensicherungen werden [regelmäßig, z. B. täglich] erstellt und nach [30] Tagen überschrieben.
+Die Teilnahme an Sitzungen ist freiwillig. Ohne die in Abschnitt 4 genannten technischen Daten (insbesondere die Geräte-ID und deine Antworten) ist eine Teilnahme nicht möglich; ein Name ist nur erforderlich, wenn die Präsentation dies verlangt. Für ein Präsentatorenkonto sind Name, E-Mail-Adresse und Passwort erforderlich.
+
+Eine automatisierte Entscheidungsfindung einschließlich Profiling im Sinne von Art. 22 DSGVO findet nicht statt. Die Quiz-Punkte dienen ausschließlich dem Spiel.
 
 
-13. Änderungen
+14. Änderungen
 
-Ich passe diese Datenschutzerklärung an, wenn sich die Funktionen von PollDeck oder die Rechtslage ändern. Es gilt die jeweils hier veröffentlichte Fassung.
+Ich passe diese Datenschutzerklärung an, wenn sich die Funktionen von PollDeck oder die Rechtslage ändern. Es gilt die jeweils auf dieser Seite veröffentlichte Fassung.

@@ -16,6 +16,7 @@ export function defaultSettings(): InstanceSettings {
     maxUploadMb: env.MAX_UPLOAD_MB,
     imprint: "",
     privacy: "",
+    retentionDays: 365,
   };
 }
 

@@ -139,4 +139,28 @@ test("Quiz-Auto-Modus: automatischer Start, sofortige Auflösung, Punkte und End
   const download = a.waitForEvent("download");
   await a.getByRole("button", { name: "Ergebnisse speichern" }).click();
   expect((await download).suggestedFilename()).toContain("Meine Ergebnisse");
+
+  // Recht auf Löschung: eigene Antworten entfernen.
+  await a.getByRole("button", { name: "Meine Antworten löschen" }).click();
+  await a.getByRole("dialog").getByRole("button", { name: "Löschen" }).click();
+  await expect(a.getByText("Deine Antworten wurden gelöscht.")).toBeVisible();
+});
+
+test("Präsentator exportiert seine Daten und löscht sein Konto", async ({ browser }) => {
+  test.skip(!!process.env.E2E_EMAIL, "Würde das vorgegebene Konto löschen.");
+  const host = await newHost(browser);
+  await host.goto("/profile");
+  const download = host.waitForEvent("download");
+  await host.getByRole("button", { name: "Daten exportieren (JSON)" }).click();
+  const file = await download;
+  expect(file.suggestedFilename()).toBe("polldeck-meine-daten.json");
+  const data = JSON.parse(require("node:fs").readFileSync(await file.path(), "utf8"));
+  expect(data.account.email).toContain("@polldeck.test");
+
+  await host.getByRole("button", { name: "Konto löschen" }).click();
+  await host.getByLabel(/Zur Bestätigung dein Passwort/).fill("e2e-passwort-123");
+  await host.getByRole("button", { name: "Endgültig löschen" }).click();
+  await host.waitForURL((u) => u.pathname === "/");
+  const me = await (await host.request.get("/api/auth/me")).json();
+  expect(me.user).toBeNull();
 });

@@ -4,10 +4,12 @@ import { attachSocketServer, shutdownLive } from "./live/server.js";
 import { prisma } from "./lib/prisma.js";
 import { redis } from "./lib/redis.js";
 import { logger } from "./lib/logger.js";
+import { scheduleRetention } from "./lib/retention.js";
 
 async function main() {
   const app = await buildApp();
   attachSocketServer(app.server);
+  scheduleRetention();
   await app.listen({ port: env.PORT, host: env.HOST });
   logger.info(`${env.APP_NAME} API läuft auf Port ${env.PORT} (${env.APP_URL})`);
 

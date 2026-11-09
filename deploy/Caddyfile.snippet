@@ -1,6 +1,8 @@
 # PollDeck – in die bestehende Caddyfile einfügen und Caddy neu laden:
 #   docker exec caddy caddy reload --config /etc/caddy/Caddyfile
 # WebSockets (Socket.IO) funktionieren ohne Zusatzkonfiguration.
+# Datenschutz: Bewusst KEINE „log“-Direktive – sonst schreibt Caddy Zugriffsprotokolle
+# mit vollständigen IP-Adressen (die Datenschutzerklärung-Vorlage geht davon aus).
 poll.nebendahl.eu {
     encode zstd gzip
     reverse_proxy polldeck-web:80

@@ -132,8 +132,10 @@ tar -czf backups/uploads-$(date +%F).tar.gz -C data uploads
 Beispiel für ein tägliches Backup per Cron (`crontab -e`):
 
 ```cron
-30 3 * * * cd ~/docker/polldeck && docker compose exec -T postgres pg_dump -U polldeck -d polldeck -Fc > backups/polldeck-$(date +\%F).dump && tar -czf backups/uploads-$(date +\%F).tar.gz -C data uploads
+30 3 * * * cd ~/docker/polldeck && docker compose exec -T postgres pg_dump -U polldeck -d polldeck -Fc > backups/polldeck-$(date +\%F).dump && tar -czf backups/uploads-$(date +\%F).tar.gz -C data uploads && find backups -type f -mtime +30 -delete
 ```
+
+Der letzte Teil löscht Sicherungen, die älter als 30 Tage sind – so steht es auch in der Datenschutzerklärung-Vorlage (`docs/rechtstexte/`).
 
 ### Restore
 
@@ -260,6 +262,13 @@ node scripts/loadtest.mjs --url https://poll.nebendahl.eu --code 123456 --client
 Die Clients antworten automatisch auf die aktuelle Folie. Am Ende gibt das Skript Verbindungszeiten, Antwort-Latenz (p50/p95/max), Fehler und die Broadcast-Rate pro Client aus. Ergebnisse werden pro Folie auf maximal etwa 4 Updates pro Sekunde gedrosselt.
 
 ---
+
+## Datenschutz
+
+- **Automatische Löschung:** Beendete Sitzungen samt Antworten und Teilnehmern werden nach der im Admin-Bereich eingestellten Frist gelöscht (Standard 365 Tage, 0 = nie). Seit 24 Stunden inaktive Sitzungen werden automatisch beendet. Abgelaufene Logins, Passwort-Links und Einladungen sowie nicht mehr verwendete Bilder werden entfernt. Die Bereinigung läuft alle 6 Stunden und lässt sich im Admin-Bereich auch sofort starten.
+- **Logs:** IP-Adressen werden in den API-Logs gekürzt gespeichert, Nginx schreibt keine Zugriffsprotokolle, Docker-Logs sind auf 3 × 10 MB pro Container begrenzt.
+- **Betroffenenrechte:** Präsentatoren können im Profil alle eigenen Daten exportieren (JSON) und ihr Konto löschen. Teilnehmer können am Ende einer Sitzung ihre Antworten selbst löschen.
+- **Rechtstexte:** Vorlagen für Impressum und Datenschutzerklärung liegen in `docs/rechtstexte/` und werden im Admin-Bereich eingefügt.
 
 ## Hinweise
 

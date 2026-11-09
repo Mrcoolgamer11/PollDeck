@@ -137,6 +137,12 @@ function NameForm({
         <Button type="submit" size="lg" className="w-full" disabled={required && !name.trim()} style={{ background: "var(--pd-accent)" }}>
           {t("participant.join")}
         </Button>
+        <p className="text-xs leading-relaxed text-slate-500">
+          {t("participant.privacyNotice")}{" "}
+          <Link to="/datenschutz" target="_blank" className="underline">
+            {t("legal.privacy")}
+          </Link>
+        </p>
         {!required && (
           <button type="button" className="w-full text-center text-sm text-slate-500 underline" onClick={() => submit("")}>
             {t("participant.stayAnonymous")}

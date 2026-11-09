@@ -15,6 +15,7 @@ import { getSettings, updateSettings } from "../lib/settings.js";
 import { sendMail } from "../lib/mail.js";
 import { env } from "../env.js";
 import { onlineCount } from "../live/presence.js";
+import { runRetention } from "../lib/retention.js";
 
 async function dirSize(dir: string): Promise<number> {
   let total = 0;
@@ -104,6 +105,9 @@ export async function adminRoutes(app: FastifyInstance) {
     const body = parse(instanceSettingsSchema.partial(), req.body);
     return { settings: await updateSettings(body) };
   });
+
+  /** Datenbereinigung sofort ausführen (läuft sonst automatisch alle 6 Stunden). */
+  app.post("/retention/run", async () => ({ report: await runRetention() }));
 
   app.get("/invites", async () => ({
     invites: await prisma.invite.findMany({

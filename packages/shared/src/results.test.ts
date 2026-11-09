@@ -195,3 +195,17 @@ describe("Quiz-Import", () => {
     expect((slides[0].config as { correctOptionIds: string[] }).correctOptionIds).toEqual(["o1", "o2"]);
   });
 });
+
+import { anonymizeIp, findUploadRefs } from "./privacy.js";
+describe("Datenschutz-Helfer", () => {
+  it("kürzt IP-Adressen", () => {
+    expect(anonymizeIp("203.0.113.57")).toBe("203.0.113.0");
+    expect(anonymizeIp("::ffff:198.51.100.23")).toBe("198.51.100.0");
+    expect(anonymizeIp("2001:db8:85a3:8d3:1319:8a2e:370:7348")).toBe("2001:db8:85a3::");
+    expect(anonymizeIp(undefined)).toBe("");
+  });
+  it("findet Upload-Referenzen", () => {
+    const refs = findUploadRefs('{"imageUrl":"/api/uploads/mx1-abc_D.png","x":"/api/uploads/q-2.webp /api/uploads/evil.svg"}');
+    expect([...refs].sort()).toEqual(["mx1-abc_D.png", "q-2.webp"]);
+  });
+});

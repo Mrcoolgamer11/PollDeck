@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { CheckCircle2, Download, Home, Printer, XCircle } from "lucide-react";
+import { CheckCircle2, Download, Home, Printer, Trash2, XCircle } from "lucide-react";
 import type { useAudienceSession } from "../lib/live";
-import { Button, cx } from "../components/ui";
+import { Button, Modal, cx } from "../components/ui";
 import { LegalLinks } from "../components/LegalLinks";
 
 type Live = ReturnType<typeof useAudienceSession>;
@@ -23,6 +23,8 @@ const esc = (s: string) => s.replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&
 export function EndScreen({ live }: { live: Live }) {
   const { t, i18n } = useTranslation();
   const [summary, setSummary] = useState<Summary | null>(null);
+  const [forgetOpen, setForgetOpen] = useState(false);
+  const [forgotten, setForgotten] = useState(false);
 
   useEffect(() => {
     live.emit<Summary>("audience:summary").then((r) => r.ok && r.data && setSummary(r.data));
@@ -108,6 +110,45 @@ ${summary.score.score ? `<p><strong>${esc(t("participant.yourScore", { score: su
           </ol>
         </section>
       )}
+      {summary && summary.items.length > 0 && !forgotten && (
+        <div className="text-center">
+          <button className="inline-flex items-center gap-1 text-sm underline opacity-80 hover:opacity-100" onClick={() => setForgetOpen(true)}>
+            <Trash2 className="h-4 w-4" aria-hidden /> {t("participant.forgetMe")}
+          </button>
+        </div>
+      )}
+      {forgotten && (
+        <p className="rounded-xl bg-emerald-50 p-3 text-center text-sm text-emerald-800" role="status">
+          {t("participant.forgotten")}
+        </p>
+      )}
+      <Modal
+        open={forgetOpen}
+        onClose={() => setForgetOpen(false)}
+        title={t("participant.forgetMe")}
+        footer={
+          <>
+            <Button variant="secondary" onClick={() => setForgetOpen(false)}>
+              {t("common.cancel")}
+            </Button>
+            <Button
+              variant="danger"
+              onClick={async () => {
+                const r = await live.emit("audience:forget");
+                setForgetOpen(false);
+                if (r.ok) {
+                  setForgotten(true);
+                  setSummary((s) => (s ? { ...s, items: [], score: { score: 0, rank: null } } : s));
+                }
+              }}
+            >
+              {t("common.delete")}
+            </Button>
+          </>
+        }
+      >
+        <p className="text-sm">{t("participant.forgetHint")}</p>
+      </Modal>
       <LegalLinks />
     </div>
   );
