@@ -17,7 +17,7 @@ Ein Datenschutzbeauftragter ist nicht bestellt, da hierzu keine gesetzliche Pfli
 
 2. Überblick
 
-Diese Website betreibt PollDeck, eine Plattform für interaktive Präsentationen, Umfragen und Quiz-Runden. PollDeck läuft auf einem eigenen virtuellen Server, der bei der Contabo GmbH in einem Rechenzentrum in Deutschland gemietet ist (siehe Abschnitt 9).
+Diese Website betreibt PollDeck, eine Plattform für interaktive Präsentationen, Umfragen und Quiz-Runden. PollDeck läuft auf einem eigenen virtuellen Server, der bei der Contabo GmbH gemietet ist und in einem Rechenzentrum in der Europäischen Union (Lauterbourg, Frankreich) betrieben wird (siehe Abschnitt 9).
 
 Grundsätze:
 - Es werden keine Analyse-, Tracking- oder Werbedienste eingesetzt.
@@ -104,7 +104,7 @@ Präsentatorinnen und Präsentatoren können Bilder für Folien, Themes und das 
 
 9. Hosting und Auftragsverarbeitung
 
-Der Server wird bei der Contabo GmbH, Aschauer Straße 32a, 81549 München, Deutschland, betrieben. Contabo stellt die Server-Infrastruktur in einem Rechenzentrum in Deutschland bereit und kann technisch auf die dort gespeicherten Daten zugreifen. Mit Contabo besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO.
+Der Server wird bei der Contabo GmbH, Welfenstraße 22, 81541 München, Deutschland, gemietet. Das Rechenzentrum, in dem der Server steht, betreibt die Contabo France SAS, 2 rue Taunus, 67630 Lauterbourg, Frankreich, als Unterauftragnehmerin von Contabo. Beide können technisch auf die auf dem Server gespeicherten Daten zugreifen. Mit Contabo besteht ein Vertrag zur Auftragsverarbeitung nach Art. 28 DSGVO, der auch den Einsatz dieser Unterauftragnehmerin regelt.
 Rechtsgrundlage: Art. 6 Abs. 1 lit. f DSGVO (berechtigtes Interesse an einer zuverlässigen Bereitstellung der Website).
 
 Darüber hinaus werden keine Daten an Dritte übermittelt, es sei denn, ich bin gesetzlich dazu verpflichtet. Eine Übermittlung in Länder außerhalb der Europäischen Union bzw. des Europäischen Wirtschaftsraums findet nicht statt.
